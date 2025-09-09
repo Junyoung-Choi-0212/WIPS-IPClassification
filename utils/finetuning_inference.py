@@ -242,6 +242,24 @@ class FineTuningInference:
                     pred_idx = mean_prob.argmax()
                     pred_label = self.id2label[pred_idx]
 
+                    print(f"\n[Patent {patent_id}]")
+                    print("청크별 예측:")
+                    for i, idx in enumerate(indices):
+                        chunk_text = group.iloc[i]['text'][:40].replace("\n", " ")  # 앞 40자만
+                        chunk_prob = probs[idx]
+                        top_idx = chunk_prob.argmax()
+                        top_label = self.id2label[top_idx]
+                        top_conf = round(chunk_prob[top_idx], 4)
+                        w = weights[i]
+                        print(f" - Chunk {i} (len={w}): 예측={top_label} (conf={top_conf}), 가중치={w}, 내용={chunk_text}...")
+
+                    print("가중 평균 결과:")
+                    topk = mean_prob.argsort()[-3:][::-1]  # 상위 3개 클래스 보기
+                    for idx in topk:
+                        print(f"   {self.id2label[idx]}: {round(mean_prob[idx],4)}")
+
+                    print(f"=> 최종 예측: {pred_label}\n")
+
                     patent_results.append({
                         "출원번호": patent_id,
                         "예측_라벨": pred_label,
