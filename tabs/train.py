@@ -74,7 +74,7 @@ def show():
                 max_length = st.number_input("MAX LENGTH", min_value=128, max_value=1024, value=512)
                 stride = st.number_input("STRIDE", min_value=10, max_value=100, value=50)
             
-    with st.expander("MODEL SAVE PATH", expanded = False):
+    with st.expander("**MODEL SAVE PATH**", expanded = False):
         model_dir = st.text_input(
             "OUTPUT DIR",
             value = st.session_state.default_save_dir
