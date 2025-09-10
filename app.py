@@ -2,6 +2,7 @@ from components import sidebar
 from dotenv import load_dotenv
 from methods import finetuning, prompt_engineering
 import streamlit as st
+import os
 
 load_dotenv()
 
@@ -68,6 +69,11 @@ if 'step2_prompt' not in st.session_state:
 3. 부가 설명이나 다른 단어 없이 코드만 출력하세요.
 4. 출력 전에 신중히 검토하세요.
 5. 출력 예시 : CPC_C01B"""
+if 'default_save_dir' not in st.session_state:
+    current_dir = os.getcwd()
+    default_dir = os.path.join(current_dir, "models") 
+    os.makedirs(default_dir, exist_ok=True) # 경로가 없을 경우 생성
+    st.session_state.default_save_dir = default_dir
 
 classification_method = sidebar.show()
 

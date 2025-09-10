@@ -37,11 +37,11 @@ def show():
         if model_selection_method == "MANUAL PATH ENTRY":
             model_path = st.text_input(
                 "병합된 모델의 경로를 입력하세요.",
-                value=r"C:\company\wips\excel_gemma_2_2b\merged_model",
+                value=os.path.join(st.session_state.default_save_dir, "ft_gemma_2_2b", "merged_model"),
                 help="학습 완료 후 생성된 merged_model 폴더의 전체 경로를 입력하세요."
             )
         else:
-            base_dir = r"C:\company\wips"
+            base_dir = st.session_state.default_save_dir
 
             if os.path.exists(base_dir):
                 try:
@@ -74,19 +74,19 @@ def show():
                         st.warning("No merged model could be found using automatic search.")
                         model_path = st.text_input(
                             "병합된 모델의 경로를 직접 입력하세요.",
-                            value=r"C:\company\wips\excel_gemma_2_2b\merged_model"
+                            value=os.path.join(st.session_state.default_save_dir, "ft_gemma_2_2b", "merged_model")
                         )
                 except Exception as e:
                     st.error(f"모델 검색 중 오류 발생: {e}")
                     model_path = st.text_input(
                         "병합된 모델의 경로를 직접 입력하세요.",
-                        value=r"C:\company\wips\excel_gemma_2_2b\merged_model"
+                        value=os.path.join(st.session_state.default_save_dir, "ft_gemma_2_2b", "merged_model")
                     )
             else:
                 st.error(f"The default directory does not exist. : {base_dir}")
                 model_path = st.text_input(
                     "병합된 모델의 경로를 직접 입력하세요.",
-                    value=r"C:\company\wips\excel_gemma_2_2b\merged_model"
+                    value=os.path.join(st.session_state.default_save_dir, "ft_gemma_2_2b", "merged_model")
                 )
 
         model_exists = False

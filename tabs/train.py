@@ -73,9 +73,18 @@ def show():
             with col3:
                 max_length = st.number_input("MAX LENGTH", min_value=128, max_value=1024, value=512)
                 stride = st.number_input("STRIDE", min_value=10, max_value=100, value=50)
-
-            model_name_input = st.text_input("OUTPUT DIR", value="ft_gemma_2_2b")
-            output_dir = os.path.join(r"C:\company\wips", model_name_input)
+            
+    with st.expander("MODEL SAVE PATH", expanded = False):
+        model_dir = st.text_input(
+            "OUTPUT DIR",
+            value = st.session_state.default_save_dir
+        )
+        
+        model_name_input = st.text_input("MODEL NAME", value="ft_gemma_2_2b")
+        
+        os.makedirs(model_dir, exist_ok=True) # 경로가 없을 경우 생성
+        
+        output_dir = os.path.join(model_dir, model_name_input)
 
     if st.button("**T R A I N**", type="primary", use_container_width=True):
         try:
