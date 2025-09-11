@@ -47,16 +47,16 @@ def show_finetuning(results_df):
         
         results_df.to_excel(writer, sheet_name = '전체', index = False)
 
-        if '예측_라벨' in results_df.columns:
+        if '예측분류' in results_df.columns:
 
-            classification_groups = results_df.groupby('예측_라벨')
+            classification_groups = results_df.groupby('예측분류')
             
             for category, group in classification_groups:
                 safe_name = str(category).replace('/', '_').replace(':', '_')[:31]
                 group.to_excel(writer, sheet_name = safe_name, index = False)
             
-            stats_df = results_df['예측_라벨'].value_counts().reset_index()
-            stats_df.columns = ['예측_라벨', '개수']
+            stats_df = results_df['예측분류'].value_counts().reset_index()
+            stats_df.columns = ['예측분류', '개수']
             stats_df.to_excel(writer, sheet_name = '통계', index = False)
         
         if '신뢰도' in results_df.columns:

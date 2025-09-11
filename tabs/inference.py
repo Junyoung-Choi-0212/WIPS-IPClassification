@@ -160,7 +160,7 @@ def show():
             st.dataframe(results_df, use_container_width=True)
 
             st.subheader("PREDICTION DISTRIBUTION")
-            pred_counts = results_df['예측_라벨'].value_counts()
+            pred_counts = results_df['예측분류'].value_counts()
             st.bar_chart(pred_counts)
 
             st.session_state.inference_results = results_df
