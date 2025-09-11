@@ -1,6 +1,7 @@
 import requests
 import streamlit as st
 import time
+import traceback
 
 def settings():
 
@@ -71,7 +72,7 @@ def get_score_for_candidate(text, code, desc, step1_prompt, api_url, api_model):
             json = {
                 "model": api_model,
                 "messages": [
-                    {"role": "system", "content": "당신은 특허를 CPC 체계로 분류하는 전문가입니다."},
+                    {"role": "system", "content": "당신은 특허를 주어진 카테고리로 분류하는 전문가입니다."},
                     {"role": "user", "content": prompt}
                 ],
                 "temperature": 0,
@@ -83,6 +84,7 @@ def get_score_for_candidate(text, code, desc, step1_prompt, api_url, api_model):
         if response.status_code == 200:
             result = response.json()
             score_text = result['choices'][0]['message']['content'].strip()
+            print(f"prompt engineering > score_text : {score_text}")
             try:
                 score = float(score_text)
                 if score < 0.0 or score > 10.0:
@@ -179,6 +181,8 @@ def inference(selected_columns, df, custom_separator, step1_prompt, step2_prompt
                         scores[code] = score
                         time.sleep(0.5)
 
+                    print(f"prompt engineering > score : {scores}")
+
                     if scores:
                         max_score = max(scores.values())
                         candidates_with_max_score = [code for code, s in scores.items() if s == max_score]
@@ -202,6 +206,8 @@ def inference(selected_columns, df, custom_separator, step1_prompt, step2_prompt
                     })
                         
                 except Exception as e:
+                    print(f"Error at index {i} with text: {text[:50]}...")
+                    traceback.print_exc()
                     results.append({
                         'index': i,
                         'text': text,
