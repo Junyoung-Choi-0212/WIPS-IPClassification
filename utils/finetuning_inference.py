@@ -229,41 +229,50 @@ class FineTuningInference:
 
             patent_results = []
 
+            # 특허 단위로 그룹화
             for patent_id, group in df_chunked.groupby('patent_id'):
                 indices = group['chunk_index'].tolist()
                 group = group.copy()
-                group['chunk_len'] = group['text'].apply(lambda x: len(x.split()))
-                weights = group['chunk_len'].values
 
-                if len(weights) > 0 and len(indices) > 0:
-                    weighted_probs = probs[indices] * weights[:, None]
-                    mean_prob = weighted_probs.sum(axis=0) / weights.sum()
-
-                    pred_idx = mean_prob.argmax()
-                    pred_label = self.id2label[pred_idx]
-
-                    print(f"\n[Patent {patent_id}]")
-                    print("청크별 예측:")
+                if len(indices) > 0:
+                    # 라벨 별 confidence 합산 저장
+                    label_conf_dict = {label: 0.0 for label in self.id2label.values()}
+                    
+                    print(f"\n [patent_id: {patent_id}]")
+                    print("chunk 별 예측: ")
+                    
                     for i, idx in enumerate(indices):
-                        chunk_text = group.iloc[i]['text'][:40].replace("\n", " ")  # 앞 40자만
+                        chunk_text = group.iloc[i]["text"][:20].replace("\n", " ") # 20자만 확인
                         chunk_prob = probs[idx]
-                        top_idx = chunk_prob.argmax()
-                        top_label = self.id2label[top_idx]
-                        top_conf = round(chunk_prob[top_idx], 4)
-                        w = weights[i]
-                        print(f" - Chunk {i} (len={w}): 예측={top_label} (conf={top_conf}), 가중치={w}, 내용={chunk_text}...")
+                        
+                        top_idx = chunk_prob.argmax() # 모델이 chunk를 가장 강하게 예측한 분류 idx
+                        top_label = self.id2label[top_idx] # 모델이 chunk를 가장 강하게 예측한 분류 이름
+                        top_conf = float(chunk_prob[top_idx]) # confidence 값
+                        
+                        # Top-1 confidence 누적(투표 개념)
+                        label_conf_dict[top_label] += top_conf
+                        
+                        print(f" - Chunk {i}: 예측={top_label} (conf={round(top_conf,4)}), 내용={chunk_text}...")
+                        
+                    # 최종 결과: confidence 합이 가장 큰 라벨(soft voting) 선택
+                    pred_label = max(label_conf_dict, key=label_conf_dict.get)
+                    
+                    # 신뢰도 합 정규화
+                    total_conf = sum(label_conf_dict.values())
+                    label_conf_norm = {label: conf / total_conf for label, conf in label_conf_dict.items()}
+                    
+                    pred_conf = round(label_conf_norm[pred_label], 4)
 
-                    print("가중 평균 결과:")
-                    topk = mean_prob.argsort()[-3:][::-1]  # 상위 3개 클래스 보기
-                    for idx in topk:
-                        print(f"   {self.id2label[idx]}: {round(mean_prob[idx],4)}")
+                    print("라벨별 confidence 합산 결과:")
+                    for label, conf_sum in sorted(label_conf_dict.items(), key=lambda x: x[1], reverse=True)[:3]:
+                        print(f"   {label}: {round(conf_sum,4)}")
 
-                    print(f"=> 최종 예측: {pred_label}\n")
+                    print(f"=> 최종 예측: {pred_label} (총합={pred_conf})\n")
 
                     patent_results.append({
                         "출원번호": patent_id,
-                        "예측_라벨": pred_label,
-                        "신뢰도": round(mean_prob[pred_idx], 4)
+                        "예측분류": pred_label,
+                        "신뢰도": pred_conf
                     })
 
             return pd.DataFrame(patent_results)
