@@ -262,7 +262,7 @@ class FineTuningInference:
                     for label, conf_sum in sorted(label_conf_dict.items(), key=lambda x: x[1], reverse=True):
                         print(f"   {label}: {round(conf_sum,4)}")
 
-                    print(f"=> 최종 예측: {pred_label} (confidence 총합: {sorted(label_conf_dict.items(), key=lambda x: x[1], reverse=True)[0]}, 신뢰도(정규화): {pred_conf})\n")
+                    print(f"=> 최종 예측: {pred_label} (confidence 총합: {round(sorted(label_conf_dict.items(), key=lambda x: x[1], reverse=True)[0][1], 4)}, 신뢰도(confidence 정규화): {pred_conf})\n")
 
                     patent_results.append({
                         "출원번호": patent_id,
