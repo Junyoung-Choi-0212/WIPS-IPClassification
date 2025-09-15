@@ -62,7 +62,7 @@ def show():
                 )
 
         with st.expander("**SFT**", expanded=False):
-            col1, col2, col3 = st.columns(3)
+            col1, col2 = st.columns(2)
             with col1:
                 epochs = st.number_input("EPOCHS", min_value=1, max_value=10, value=5)
                 learning_rate = st.number_input("LEARNING RATE", min_value=1e-7, max_value=1e-3, value=2e-5,
@@ -70,9 +70,13 @@ def show():
             with col2:
                 warmup_steps = st.number_input("WARMUP STEPS", min_value=0, max_value=100, value=50)
                 test_size = st.number_input("TEST SIZE", min_value=0.1, max_value=0.3, value=0.2)
-            with col3:
-                max_length = st.number_input("MAX LENGTH", min_value=128, max_value=1024, value=512)
-                stride = st.number_input("STRIDE", min_value=10, max_value=100, value=50)
+                
+    with st.expander("**CHUNKING SETTINGS**", expanded = False):
+        col1, col2 = st.columns(2)
+        with col1:
+            max_length = st.number_input("MAX LENGTH", min_value=128, max_value=1024, value=512)
+        with col2:
+            stride = st.number_input("STRIDE", min_value=10, max_value=100, value=50)
             
     with st.expander("**MODEL SAVE PATH**", expanded = False):
         model_dir = st.text_input(
