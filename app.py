@@ -30,11 +30,7 @@ if 'uploaded_df' not in st.session_state:
     st.session_state.uploaded_df = None
 if 'categories' not in st.session_state:
     st.session_state.categories = {
-        "CPC_C01B" : "Non-metal elements and their compounds (excluding CO2). Inorganic compounds without metals.",
-        "CPC_C01C" : "Ammonia, cyanide, and their compounds.",
-        "CPC_C01D" : "Alkali metal compounds such as lithium, sodium, potassium, rubidium, cesium, or francium.",
-        "CPC_C01F" : "Compounds of metals like beryllium, magnesium, aluminum, calcium, strontium, barium, radium, thorium, or rare earth metals.",
-        "CPC_C01G" : "Compounds containing metals not included in C01D or C01F."
+        "category" : "a description of certain category"
     }
 if 'step1_prompt' not in st.session_state:
     st.session_state.step1_prompt = """다음은 특허 정보입니다.
@@ -50,8 +46,12 @@ if 'step1_prompt' not in st.session_state:
 분류 카테고리 : {code}
 설명 : {desc}
 
-0.0에서 10.0 사이의 소수점 1자리 숫자만 출력해 주세요.  
-숫자 외에는 어떠한 단어도 출력하지 마세요."""
+다음 조건을 반드시 지켜야 합니다:
+1. 0.0 ~ 10.0 사이 소수점 1자리 숫자 하나만 출력
+2. 다른 텍스트, 태그, <think> 등 절대 출력 금지
+3. 모델이 생각 과정이나 헛소리를 내보내면 안 됨
+4. 출력 예시: 7.5
+5. 숫자를 출력하지 못하면 모델은 반드시 다시 시도"""
 
 if 'step2_prompt' not in st.session_state:
     st.session_state.step2_prompt = """다음은 특허 정보입니다.
@@ -63,12 +63,12 @@ if 'step2_prompt' not in st.session_state:
 [분류 후보 및 설명]
 {candidate_text}
 
-규칙 :
-1. 반드시 분류 후보에 있는 분류 카테고리 중 하나만 출력하세요.
-2. 후보에 없는 다른 분류 카테고리는 절대 출력하지 마세요.
-3. 부가 설명이나 다른 단어 없이 분류 카테고리만 출력하세요.
-4. 출력 전에 신중히 검토하세요.
-5. 출력 예시 : CPC_C01B"""
+다음 조건을 반드시 지켜야 합니다:
+1. 분류 후보 중 하나만 출력
+2. 다른 텍스트, 태그, <think> 등 절대 출력 금지
+3. 모델이 생각 과정이나 헛소리를 내보내면 안 됨
+4. 출력 예시: {example}
+5. 후보를 출력하지 못하면 모델은 반드시 다시 시도"""
 if 'default_save_dir' not in st.session_state:
     current_dir = os.getcwd()
     default_dir = os.path.join(current_dir, "models") 

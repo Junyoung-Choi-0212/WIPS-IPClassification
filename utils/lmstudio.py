@@ -2,6 +2,7 @@ import requests
 import streamlit as st
 import time
 import traceback
+import re
 
 def settings():
 
@@ -62,81 +63,104 @@ def settings():
                 st.error(e)
                 st.session_state.api_connection_success = False
 
-def get_score_for_candidate(text, code, desc, step1_prompt, api_url, api_model):
+def get_score_for_candidate(text, code, desc, step1_prompt, api_url, api_model, max_retry=5, retry_delay=1):
 
     prompt = step1_prompt.format(text = text, code = code, desc = desc)
     
-    try:
-        response = requests.post(
-            api_url,
-            json = {
-                "model": api_model,
-                "messages": [
-                    {"role": "system", "content": "당신은 특허를 주어진 카테고리로 분류하는 전문가입니다."},
-                    {"role": "user", "content": prompt}
-                ],
-                "temperature": 0,
-                "max_tokens": 8
-            },
-            timeout = 30
-        )
-        
-        if response.status_code == 200:
-            result = response.json()
-            score_text = result['choices'][0]['message']['content'].strip()
-            print(f"prompt engineering > score_text : {score_text}")
-            try:
-                score = float(score_text)
-                if score < 0.0 or score > 10.0:
-                    score = 0.0
-            except ValueError:
-                score = 0.0
+    for attempt in range(max_retry):
+        try:
+            response = requests.post(
+                api_url,
+                json = {
+                    "model": api_model,
+                    "messages": [
+                        {"role": "system", "content": "당신은 특허를 주어진 카테고리로 분류하는 전문가입니다."},
+                        {"role": "user", "content": prompt}
+                    ],
+                    "temperature": 0,
+                    "max_tokens": 8
+                },
+                timeout=30
+            )
 
-        else:
-            score = 0.0
-            
-    except Exception as e:
-        st.error(e)
-        score = 0.0
+            if response.status_code == 200:
+                result = response.json()
+                score_text = result['choices'][0]['message']['content'].strip()
+                # print(f"prompt engineering > score_text before : {score_text}")
+
+                # 숫자 추출
+                match = re.search(r"\b([0-9](\.[0-9])?|10(\.0)?)\b", score_text)
+                if match:
+                    score = float(match.group())
+                    # 범위 체크
+                    if score < 0.0 or score > 10.0:
+                        print(f"⚠️ Score out of range, retrying: {score}")
+                        score = None
+                    else:
+                        print(f"prompt engineering > code : {code}, score : {score}")
+                        return score  # 정상 숫자면 바로 반환
+                else:
+                    print(f"⚠️ 숫자를 찾지 못함, 재시도 {attempt+1}")
+                    
+            else:
+                print(f"⚠️ API 상태 코드 {response.status_code}, 재시도 {attempt+1}")
+
+        except Exception as e:
+            print(f"⚠️ 예외 발생: {e}, 재시도 {attempt+1}")
+
+        # 재시도 전 딜레이
+        time.sleep(retry_delay)
+
+    # 최대 재시도 후에도 숫자 못 받으면 0.0
+    print("❌ 최대 재시도 후에도 숫자 없음, 0.0 반환")
+    return 0.0
+
+def reselect_best_code(text, candidate_codes, candidates, example, step2_prompt, api_url, api_model, max_retry=5, retry_delay=1):
+    candidate_text = "\n".join([f"{code} : {candidates[code]}" for code in candidate_codes])
+    prompt = step2_prompt.format(text = text, candidate_text = candidate_text, example = example)
+    # print(f"reselect prompt : {prompt}")
     
-    return score
+    for attempt in range(max_retry):
+        try:
+            response = requests.post(
+                api_url,
+                json={
+                    "model": api_model,
+                    "messages": [
+                        {"role": "system", "content": "당신은 특허를 주어진 카테고리로 분류하는 전문가입니다."},
+                        {"role": "user", "content": prompt}
+                    ],
+                    "temperature": 0,
+                    "max_tokens": 15
+                },
+                timeout=30
+            )
 
-def reselect_best_code(text, candidate_codes, cpc_candidates, step2_prompt, api_url, api_model):
+            if response.status_code == 200:
+                result = response.json()
+                final_choice = result['choices'][0]['message']['content'].strip()
+                # print(f"final (attempt {attempt+1}): {final_choice}")
 
-    candidate_text = "\n".join([f"{code} : {cpc_candidates[code]}" for code in candidate_codes])
-    prompt = step2_prompt.format(text = text, candidate_text = candidate_text)
-    
-    try:
-        response = requests.post(
-            api_url,
-            json = {
-                "model": api_model,
-                "messages": [
-                    {"role": "system", "content": "당신은 특허를 CPC 체계로 분류하는 전문가입니다."},
-                    {"role": "user", "content": prompt}
-                ],
-                "temperature": 0,
-                "max_tokens": 15
-            },
-            timeout = 30
-        )
-        
-        if response.status_code == 200:
-            result = response.json()
-            final_choice = result['choices'][0]['message']['content'].strip()
-            for code in candidate_codes:
-                if code in final_choice:
-                    return code
-            return "ERROR"
-        
-        else:
-            return "ERROR"
-            
-    except Exception as e:
-        st.error(e)
-        return "ERROR"
+                # 후보 코드 중 하나가 포함되어 있으면 바로 반환
+                for code in candidate_codes:
+                    if code in final_choice:
+                        print(f"prompt engineering > reselect : {code}")
+                        return code
 
-def inference(selected_columns, df, custom_separator, step1_prompt, step2_prompt, cpc_candidates):
+                print(f"⚠️ 후보 코드 없음, 재시도 {attempt+1}")
+            else:
+                print(f"⚠️ API 상태 코드 {response.status_code}, 재시도 {attempt+1}")
+
+        except Exception as e:
+            print(f"⚠️ 예외 발생: {e}, 재시도 {attempt+1}")
+
+        time.sleep(retry_delay)
+
+    # 최대 재시도 후에도 후보 코드가 없으면 ERROR 반환
+    print("❌ 최대 재시도 후에도 후보 코드 선택 실패")
+    return "ERROR"
+
+def inference(selected_columns, df, custom_separator, step1_prompt, step2_prompt, candidates):
 
     if not st.session_state.get('api_connection_success', False):
         st.warning("Please complete API CONNECTION first.")
@@ -176,7 +200,7 @@ def inference(selected_columns, df, custom_separator, step1_prompt, step2_prompt
 
                     scores = {}
 
-                    for code, desc in cpc_candidates.items():
+                    for code, desc in candidates.items():
                         score = get_score_for_candidate(text, code, desc, step1_prompt, st.session_state.api_url, st.session_state.api_model)
                         scores[code] = score
                         time.sleep(0.5)
@@ -191,7 +215,7 @@ def inference(selected_columns, df, custom_separator, step1_prompt, step2_prompt
                             classification = candidates_with_max_score[0]
 
                         else:
-                            classification = reselect_best_code(text, candidates_with_max_score, cpc_candidates, step2_prompt, st.session_state.api_url, st.session_state.api_model)
+                            classification = reselect_best_code(text, candidates_with_max_score, candidates, next(iter(st.session_state.categories)), step2_prompt, st.session_state.api_url, st.session_state.api_model)
                             time.sleep(0.5)
 
                     else:

@@ -3,11 +3,7 @@ import streamlit as st
 def show():
 
     default_categories = {
-        "CPC_C01B" : "Non-metal elements and their compounds (excluding CO2). Inorganic compounds without metals.",
-        "CPC_C01C" : "Ammonia, cyanide, and their compounds.",
-        "CPC_C01D" : "Alkali metal compounds such as lithium, sodium, potassium, rubidium, cesium, or francium.",
-        "CPC_C01F" : "Compounds of metals like beryllium, magnesium, aluminum, calcium, strontium, barium, radium, thorium, or rare earth metals.",
-        "CPC_C01G" : "Compounds containing metals not included in C01D or C01F."
+        "category" : "a description of certain category"
     }
     
     if 'categories' not in st.session_state:
@@ -35,7 +31,7 @@ def show():
 
             col1, col2, col3 = st.columns([1, 3, 0.15])
 
-            default_key = category_items[i][0] if i < len(category_items) else f"CPC_CODE_{i+1}"
+            default_key = category_items[i][0] if i < len(category_items) else f"category_{i+1}"
             default_value = category_items[i][1] if i < len(category_items) else ""
             
             with col1:
