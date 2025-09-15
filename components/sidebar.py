@@ -52,13 +52,12 @@ def show():
         st.sidebar.title("[ HOW TO USE ]")
         st.sidebar.subheader("PROMPT ENGINEERING")
         st.sidebar.markdown("""
-        1. CLASSIFICATION METHOD
-        2. UPLOAD DATA
-        3. DATA PREPARATION _ COLUMNS TO INCLUDE IN PROMPT
-        4. CATEGORY TO CLASSIFY
-        5. PROMPT TEMPLATE
-        6. LM STUDIO SETTING
-        7. CLASSIFY
+        1. 데이터 파일 업로드
+        2. 데이터 선별 _ 프롬프트에 추가할 컬럼 선택
+        3. 분류할 카테고리 입력
+        4. 프롬프트 템플릿
+        5. LM STUDIO API 설정
+        6. 결과 다운로드
         """)
     elif classification_method == "FINE TUNING":
         st.sidebar.title("[ HOW TO USE ]")
