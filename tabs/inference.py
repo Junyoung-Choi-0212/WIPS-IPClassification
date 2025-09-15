@@ -125,7 +125,7 @@ def show():
             st.warning("지정된 경로에 모델이 존재하지 않습니다.")
 
     if model_exists:
-        with st.expander("**HYPERPARAMETER**", expanded=False):
+        with st.expander("**CHUNKING SETTINGS**", expanded=False):
             col1, col2 = st.columns(2)
             with col1:
                 chunk_max_length = st.number_input(
