@@ -41,7 +41,7 @@ def show():
                 df = pd.read_excel(uploaded_file, sheet_name = selected_sheet)
             
             st.session_state.uploaded_df = df
-            st.sidebar.success("DATA LOADING IS COMPLETE")
+            st.sidebar.success("DATA LOADING COMPLETED")
             
         except Exception as e:
             st.sidebar.error(e)

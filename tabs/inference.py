@@ -154,7 +154,7 @@ def show():
                     stride=chunk_stride
                 )
 
-            st.toast("INFERENCE IS COMPLETE")
+            st.toast("INFERENCE COMPLETED")
 
             st.subheader("INFERENCE RESULT")
             st.dataframe(results_df, use_container_width=True)

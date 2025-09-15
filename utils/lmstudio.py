@@ -245,4 +245,4 @@ def inference(selected_columns, df, custom_separator, step1_prompt, step2_prompt
                 time.sleep(1.0)
             
             st.session_state.classification_results = results
-            st.toast("CLASSIFICATION IS COMPLETE")
+            st.toast("CLASSIFICATION COMPLETED")

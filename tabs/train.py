@@ -149,7 +149,7 @@ def show():
             except Exception as e:
                 st.warning(f"Could not save test dataset: {e}")
 
-            st.toast("TRAIN IS COMPLETE")
+            st.toast("TRAIN COMPLETED")
 
             st.subheader("TRAIN RESULT")
 
