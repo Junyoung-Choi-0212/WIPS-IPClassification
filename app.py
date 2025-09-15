@@ -6,7 +6,7 @@ import os
 
 load_dotenv()
 
-st.set_page_config(page_title = "특허 문서 분류 자동화 플랫폼", layout = "wide")
+st.set_page_config(page_title = "특허 문서 분류 자동화 플랫폼", layout = "wide", menu_items = {})
 
 st.title("특허 문서 분류 자동화 플랫폼")
 
