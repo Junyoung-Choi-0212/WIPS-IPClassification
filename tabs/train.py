@@ -35,14 +35,18 @@ def show():
             return
 
         with st.expander("**QUANTIZATION**", expanded=False):
-            col1, col2, col3, col4 = st.columns(4)
-            with col1:
-                load_in_4bit = st.checkbox("4 - BIT QUANTIZATION", value=True)
-            with col2:
+            row1_col1, row1_col2 = st.columns([1, 1])
+            with row1_col1:
                 bnb_4bit_quant_type = st.selectbox("QUANTIZATION TYPE", ["nf4", "fp4"], index=0)
-            with col3:
+            with row1_col2:
+                for i in range(2): st.write("")  # 약간의 위쪽 패딩
+                load_in_4bit = st.checkbox("4 - BIT QUANTIZATION", value=True)
+                
+            row2_col1, row2_col2 = st.columns([1, 1])
+            with row2_col1:
                 bnb_4bit_compute_dtype = st.selectbox("COMPUTE DTYPE", ["float16", "bfloat16", "float32"], index=0)
-            with col4:
+            with row2_col2:
+                for i in range(2): st.write("")  # 약간의 위쪽 패딩
                 bnb_4bit_use_double_quant = st.checkbox("DOUBLE QUANTIZATION", value=True)
 
         with st.expander("**LoRA**", expanded=False):
