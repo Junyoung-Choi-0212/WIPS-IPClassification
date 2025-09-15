@@ -57,7 +57,7 @@ class FineTuningInference:
             self.label2id = {l: i for i, l in enumerate(self.labels_list)}
             self.id2label = {i: l for l, i in self.label2id.items()}
         else:
-            self.labels_list = ['CPC_C01B', 'CPC_C01C', 'CPC_C01D', 'CPC_C01F', 'CPC_C01G']
+            self.labels_list = ['A', 'B', 'C', 'D', 'E']
             self.label2id = {l: i for i, l in enumerate(self.labels_list)}
             self.id2label = {i: l for l, i in self.label2id.items()}
 
