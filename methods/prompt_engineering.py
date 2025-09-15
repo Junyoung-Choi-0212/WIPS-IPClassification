@@ -69,7 +69,7 @@ def show():
             st.metric("**COUNT OF UNIQUE CATEGORIES**", unique_categories)
         with col_overview3:
             error_count = len([r for r in results if "ERROR" in r['classification']])
-            st.metric("**NUMBER OF ERRORS**", error_count)
+            st.metric("**CLASSIFICATION FAILED**", error_count)
         
         classification_groups = results_df.groupby('classification')
         
