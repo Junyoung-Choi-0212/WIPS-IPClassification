@@ -120,6 +120,7 @@ class FineTuningTrainer:
             'gradient_checkpointing': True,
             'dataset_text_field': 'text',
             'max_length': 512,
+            'label_smoothing_factor': 0.05,
             'label_names': ['labels']
         }
 
