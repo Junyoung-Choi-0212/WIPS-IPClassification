@@ -2,6 +2,7 @@ from components.prompt_engineering import category_settings, prompt_settings
 from utils import excel_download
 import pandas as pd
 import streamlit as st
+import plotly.graph_objects as go
 
 def show():
     if st.session_state.uploaded_df is not None:
@@ -74,6 +75,36 @@ def show():
         
         st.subheader("PREDICTION DISTRIBUTION")
         classification_counts = results_df['classification'].value_counts()
-        st.bar_chart(classification_counts)
+        
+        labels = classification_counts.index.tolist()
+        sizes = classification_counts.values.tolist()
+
+        # Plotly 파이차트
+        fig = go.Figure(data=[go.Pie(
+            labels=labels,
+            values=sizes,
+            text=sizes,           # 각 조각 안에 count 표시
+            textinfo='label+text', # 라벨과 count 표시
+            hole=0.5,               # 도넛형 만들려면 0~1 사이 값 설정(1에 가까워질 수록 가운데 구멍 크기 증가)
+            insidetextfont=dict(size=32) # 텍스트 크기 조절
+        )])
+
+        # 레이아웃: 차트 크기 조절 + 여백 최소화
+        fig.update_layout(
+            width=600,   # 차트 가로 크기
+            height=600,  # 차트 세로 크기
+            margin=dict(l=20, r=20, t=20, b=20)
+        )
+
+        # CSS로 정확히 중앙 정렬
+        st.markdown(
+            """
+            <div style='display:flex; justify-content:center;'>
+                <div style='width:500px'>
+            """, 
+            unsafe_allow_html=True
+        )
+        st.plotly_chart(fig, use_container_width=True)
+        st.markdown("</div></div>", unsafe_allow_html=True)
 
         excel_download.show_promptengineering(results_df, classification_groups)
