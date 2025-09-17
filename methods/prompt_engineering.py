@@ -86,7 +86,9 @@ def show():
             text=sizes,           # 각 조각 안에 count 표시
             textinfo='label+text', # 라벨과 count 표시
             hole=0.5,               # 도넛형 만들려면 0~1 사이 값 설정(1에 가까워질 수록 가운데 구멍 크기 증가)
-            insidetextfont=dict(size=32) # 텍스트 크기 조절
+            insidetextfont=dict(size=32), # 텍스트 크기 조절
+            textposition='inside',              # 조각 안쪽에 표시
+            insidetextorientation='horizontal'  # 텍스트 고정, 회전 안 됨
         )])
 
         # 레이아웃: 차트 크기 조절 + 여백 최소화
