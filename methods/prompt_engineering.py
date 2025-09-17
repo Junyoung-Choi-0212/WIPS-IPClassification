@@ -89,16 +89,23 @@ def show():
             insidetextfont=dict(size=32), # 텍스트 크기 조절
             textposition='inside',              # 조각 안쪽에 표시
             insidetextorientation='horizontal',  # 텍스트 고정, 회전 안 됨
+            pull=[0.1 if i == sizes.index(max(sizes)) else 0 for i in range(len(sizes))], # 가장 분류 카운트가 높은 조각을 밖으로 분리
             hovertemplate='%{label}<br>Count: %{value}<br>Percent: %{percent}<extra></extra>' # 마우스 호버링 시 노출되는 텍스트 템플릿
         )])
 
-        # 레이아웃: 차트 크기 조절 + 여백 최소화
         fig.update_layout(
             width=600,   # 차트 가로 크기
             height=600,  # 차트 세로 크기
-            margin=dict(l=20, r=20, t=20, b=20)
+            margin=dict(l=20, r=20, t=20, b=20), # 차트 여백 최소화
+            legend=dict( # 범례 크기 설정
+                font=dict(size=32),      # 글자 크기
+                itemsizing='constant',   # 박스 크기를 일정하게
+            )
         )
 
+        # 범례 마커(박스) 크기 조절
+        fig.update_traces(marker=dict(line=dict(width=2)))  # 테두리 두껍게
+        
         # CSS로 정확히 중앙 정렬
         st.markdown(
             """
