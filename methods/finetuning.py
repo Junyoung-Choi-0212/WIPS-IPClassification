@@ -9,12 +9,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 def show():
-
     if st.session_state.uploaded_df is not None:
-        
         st.header("FINE TUNING")
-
-        st.write(" ")
 
         with st.expander("**TRANSFORMERS SETTING**", expanded = True):
             col1, col2 = st.columns(2)

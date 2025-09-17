@@ -4,17 +4,12 @@ import pandas as pd
 import streamlit as st
 
 def show():
-    
     if st.session_state.uploaded_df is not None:
-
         st.header("PROMPT ENGINEERING")
-
-        st.write(" ")
 
         df = st.session_state.uploaded_df
 
         with st.expander("**DATA PREPARATION**", expanded = True):
-        
             col1, col2 = st.columns([2, 1])
             
             with col1:
@@ -45,14 +40,12 @@ def show():
                     custom_separator = ""
         
         category_settings.show()
-        
         prompt_settings.show(selected_columns, df, custom_separator)
 
     else:
         st.info("⬅️ 특허 문서를 업로드해 주세요.")
     
     if st.session_state.classification_results:
-
         st.markdown("---")
 
         st.subheader("CLASSIFICATION RESULT")

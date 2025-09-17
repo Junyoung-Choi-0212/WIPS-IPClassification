@@ -2,7 +2,6 @@ import pandas as pd
 import streamlit as st
 
 def show():
-
     st.sidebar.title("[ CLASSIFICATION METHOD ]")
     classification_method = st.sidebar.selectbox(
         "분류 방법을 선택하세요.",
@@ -20,16 +19,13 @@ def show():
     )
 
     if uploaded_file is not None:
-
         try:
-
             file_extension = uploaded_file.name.split('.')[-1].lower()
             
             if file_extension == 'csv':
                 df = pd.read_csv(uploaded_file)
 
             elif file_extension in ['xlsx', 'xls']:
-
                 excel_file = pd.ExcelFile(uploaded_file)
                 sheet_names = excel_file.sheet_names
                 

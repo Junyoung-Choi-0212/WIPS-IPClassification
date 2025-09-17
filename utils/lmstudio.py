@@ -5,9 +5,7 @@ import traceback
 import re
 
 def settings():
-
     with st.expander("**LM STUDIO SETTING**"):
-
         col_api1, col_api2 = st.columns(2)
 
         with col_api1:
@@ -25,9 +23,7 @@ def settings():
             st.session_state.api_model = api_model_input
 
         if st.button("API CONNECTION"):
-
             try:
-
                 test_response = requests.post(
                     st.session_state.api_url,
                     json = {
@@ -64,7 +60,6 @@ def settings():
                 st.session_state.api_connection_success = False
 
 def get_score_for_candidate(text, code, desc, step1_prompt, api_url, api_model, max_retry=5, retry_delay=1):
-
     prompt = step1_prompt.format(text = text, code = code, desc = desc)
     
     for attempt in range(max_retry):
@@ -94,19 +89,19 @@ def get_score_for_candidate(text, code, desc, step1_prompt, api_url, api_model, 
                     score = float(match.group())
                     # 범위 체크
                     if score < 0.0 or score > 10.0:
-                        print(f"⚠️ Score out of range, retrying: {score}")
+                        print(f"Score out of range, retrying: {score}")
                         score = None
                     else:
                         print(f"prompt engineering > code : {code}, score : {score}")
                         return score  # 정상 숫자면 바로 반환
                 else:
-                    print(f"⚠️ 숫자를 찾지 못함, 재시도 {attempt+1}")
+                    print(f"숫자를 찾지 못함, 재시도 {attempt+1}")
                     
             else:
-                print(f"⚠️ API 상태 코드 {response.status_code}, 재시도 {attempt+1}")
+                print(f"API 상태 코드 {response.status_code}, 재시도 {attempt+1}")
 
         except Exception as e:
-            print(f"⚠️ 예외 발생: {e}, 재시도 {attempt+1}")
+            print(f"예외 발생: {e}, 재시도 {attempt+1}")
 
         # 재시도 전 딜레이
         time.sleep(retry_delay)
@@ -147,33 +142,30 @@ def reselect_best_code(text, candidate_codes, candidates, example, step2_prompt,
                         print(f"prompt engineering > reselect : {code}")
                         return code
 
-                print(f"⚠️ 후보 코드 없음, 재시도 {attempt+1}")
+                print(f"후보 코드 없음, 재시도 {attempt+1}")
             else:
-                print(f"⚠️ API 상태 코드 {response.status_code}, 재시도 {attempt+1}")
+                print(f"API 상태 코드 {response.status_code}, 재시도 {attempt+1}")
 
         except Exception as e:
-            print(f"⚠️ 예외 발생: {e}, 재시도 {attempt+1}")
+            print(f"예외 발생: {e}, 재시도 {attempt+1}")
 
         time.sleep(retry_delay)
 
     # 최대 재시도 후에도 후보 코드가 없으면 ERROR 반환
-    print("❌ 최대 재시도 후에도 후보 코드 선택 실패")
+    print("최대 재시도 후에도 후보 코드 선택 실패")
     return "ERROR"
 
 def inference(selected_columns, df, custom_separator, step1_prompt, step2_prompt, candidates):
-
     if not st.session_state.get('api_connection_success', False):
         st.warning("Please complete API CONNECTION first.")
         return
 
     if st.button("**C L A S S I F Y**", type = "primary", use_container_width = True):
-
         if not hasattr(st.session_state, 'api_url') or not hasattr(st.session_state, 'api_model'):
             st.error("Please set up the LM STUDIO API first.")
             return
         
         with st.spinner("CLASSIFICATION IN PROGRESS ..."):
-
             if len(selected_columns) == 1:
                 data_to_classify = df[selected_columns[0]].dropna().astype(str).tolist()
                 
@@ -195,9 +187,7 @@ def inference(selected_columns, df, custom_separator, step1_prompt, step2_prompt
             progress_bar = st.progress(0)
             
             for i, text in enumerate(data_to_classify):
-
                 try:
-
                     scores = {}
 
                     for code, desc in candidates.items():

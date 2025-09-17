@@ -13,7 +13,6 @@ load_dotenv()
 
 def show():
     with st.expander("**COLUMNS TO USE FOR INFERENCE**", expanded=True):
-
         df = st.session_state.uploaded_df
 
         selected_cols = st.multiselect(
@@ -27,7 +26,6 @@ def show():
             st.warning("Please select at least one column.")
 
     with st.expander("**MODEL TO USE FOR INFERENCE**", expanded=False):
-
         model_selection_method = st.radio(
             "MODEL SELECTION METHOD",
             ["AUTOMATIC SEARCH", "MANUAL PATH ENTRY"],
@@ -60,7 +58,7 @@ def show():
 
                     if valid_models:
                         # 사용자에게 보여줄 이름과 실제 경로 분리
-                        model_names = [name for name, path in valid_models]
+                        model_names = [name for name, _ in valid_models]
                         selected_model_name = st.selectbox(
                             "검색된 병합 모델 중 하나를 선택하세요.",
                             options=model_names

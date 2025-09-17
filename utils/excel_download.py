@@ -6,14 +6,12 @@ import streamlit as st
 import time
 
 def show_promptengineering(results_df, classification_groups):
-
     download_df = results_df[['text', 'classification']].copy()
     download_df.columns = ['TEXT', 'CLASSIFICATION']
 
     excel_buffer = BytesIO()
 
     with pd.ExcelWriter(excel_buffer, engine = 'openpyxl') as writer:
-
         download_df.to_excel(writer, sheet_name = '전체', index = False)
  
         for category, group in classification_groups:
@@ -36,7 +34,6 @@ def show_promptengineering(results_df, classification_groups):
     )
 
 def show_finetuning(results_df):
-
     if results_df is None or len(results_df) == 0:
         st.warning("다운로드할 결과가 없습니다.")
         return
@@ -44,11 +41,9 @@ def show_finetuning(results_df):
     excel_buffer = BytesIO()
 
     with pd.ExcelWriter(excel_buffer, engine = 'openpyxl') as writer:
-        
         results_df.to_excel(writer, sheet_name = '전체', index = False)
 
         if '예측분류' in results_df.columns:
-
             classification_groups = results_df.groupby('예측분류')
             
             for category, group in classification_groups:

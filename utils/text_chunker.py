@@ -1,5 +1,6 @@
 # utils/text_chunker.py
 import pandas as pd
+
 class SlidingWindowChunker:
     def __init__(self, tokenizer):
         self.tokenizer = tokenizer
@@ -34,6 +35,7 @@ class SlidingWindowChunker:
                     "text": chunk,
                     "patent_id": row["patent_id"]
                 }
+                
                 if "label" in row:
                     chunk_row["label"] = row["label"]
                 chunked_rows.append(chunk_row)

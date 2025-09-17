@@ -1,19 +1,14 @@
 import streamlit as st
 
 def show():
-
-    default_categories = {
-        "category" : "a description of certain category"
-    }
+    default_categories = {"category" : "a description of certain category"}
     
     if 'categories' not in st.session_state:
         st.session_state.categories = default_categories.copy()
-    
     if 'num_categories' not in st.session_state:
         st.session_state.num_categories = len(st.session_state.categories)
     
     with st.expander("**CATEGORY TO CLASSIFY**", expanded = False):
-
         col1, col2 = st.columns([1, 3.19])
 
         with col1:
@@ -24,11 +19,9 @@ def show():
     
         updated_categories = {}
         categories_to_remove = []
-        
         category_items = list(st.session_state.categories.items())
         
         for i in range(st.session_state.num_categories):
-
             col1, col2, col3 = st.columns([1, 3, 0.15])
 
             default_key = category_items[i][0] if i < len(category_items) else f"category_{i+1}"
@@ -47,17 +40,14 @@ def show():
                 updated_categories[code.strip()] = desc.strip()
         
         if categories_to_remove:
-
             st.session_state.num_categories -= len(categories_to_remove)
 
             remaining_items = []
-
             for i, (key, value) in enumerate(category_items):
                 if i not in categories_to_remove:
                     remaining_items.append((key, value))
             
             st.session_state.categories = dict(remaining_items)
-
             st.rerun()
 
         st.session_state.categories = updated_categories

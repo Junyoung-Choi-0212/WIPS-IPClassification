@@ -2,7 +2,6 @@ from utils import lmstudio
 import streamlit as st
 
 def show(selected_columns, df, custom_separator):
-
     with st.expander("**PROMPT TEMPLATE**", expanded = False):
     
         if 'step1_prompt' not in st.session_state:

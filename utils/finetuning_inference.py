@@ -3,15 +3,10 @@
 import os
 import pandas as pd
 import torch
-from datasets import Dataset, DatasetDict
-from transformers import AutoTokenizer, AutoModelForSequenceClassification, BitsAndBytesConfig, DataCollatorWithPadding
-from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training, PeftModel
-from sklearn.metrics import accuracy_score, precision_recall_fscore_support
-from sklearn.model_selection import train_test_split
-import torch.nn.functional as F
-from trl import SFTTrainer, SFTConfig
+from datasets import Dataset
+from transformers import AutoTokenizer, AutoModelForSequenceClassification, BitsAndBytesConfig
+from peft import PeftModel
 import pickle
-from safetensors.torch import load_file
 from dotenv import load_dotenv
 from utils.data_proceesor import DataProcessor
 from utils.text_chunker import SlidingWindowChunker

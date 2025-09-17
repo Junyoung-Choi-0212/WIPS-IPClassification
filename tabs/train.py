@@ -4,10 +4,8 @@ from utils.data_proceesor import DataProcessor
 from utils.finetuning_trainer import FineTuningTrainer
 from utils.text_chunker import SlidingWindowChunker
 import os
-import pandas as pd
 import streamlit as st
 from dotenv import load_dotenv
-from datasets import Dataset, DatasetDict
 
 # .env 파일 로드
 load_dotenv()
@@ -89,9 +87,7 @@ def show():
         )
         
         model_name_input = st.text_input("MODEL NAME", value="ft_gemma_2_2b")
-        
         os.makedirs(model_dir, exist_ok=True) # 경로가 없을 경우 생성
-        
         output_dir = os.path.join(model_dir, model_name_input)
 
     if st.button("**T R A I N**", type="primary", use_container_width=True):

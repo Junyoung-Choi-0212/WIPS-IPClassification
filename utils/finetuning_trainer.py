@@ -1,19 +1,15 @@
 # utils/finetuning_trainer.py
 
 import os
-import pandas as pd
 import torch
-from datasets import Dataset, DatasetDict
+from datasets import DatasetDict
 from transformers import AutoTokenizer, AutoModelForSequenceClassification, BitsAndBytesConfig, DataCollatorWithPadding
-from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training, PeftModel
+from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
 from sklearn.metrics import accuracy_score, precision_recall_fscore_support
-from sklearn.model_selection import train_test_split
 import torch.nn.functional as F
 from trl import SFTTrainer, SFTConfig
 import pickle
-from safetensors.torch import load_file
 from dotenv import load_dotenv
-from utils.text_chunker import SlidingWindowChunker
 
 # .env 파일 로드
 load_dotenv()
