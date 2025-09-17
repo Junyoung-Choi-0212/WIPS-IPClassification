@@ -220,13 +220,15 @@ class FineTuningInference:
             # 결과 처리
             # -------------------------------
             df_chunked = df_chunked.reset_index(drop=True)
-            df_chunked['chunk_index'] = range(len(df_chunked))
+
+            print("[inference dataset]")
+            print(df_chunked.head(5))
 
             patent_results = []
 
             # 특허 단위로 그룹화
             for patent_id, group in df_chunked.groupby('patent_id'):
-                indices = group['chunk_index'].tolist()
+                indices = group.index.tolist()
                 group = group.copy()
 
                 if len(indices) > 0:
@@ -234,15 +236,28 @@ class FineTuningInference:
                     label_conf_dict = {label: 0.0 for label in self.id2label.values()}
                     
                     print(f"\n [patent_id: {patent_id}]")
-                    print("chunk 별 예측: ")
                     
-                    for _, idx in enumerate(indices):
+                    top_n = 3  # 각 chunk에서 예측 결과 상위 n개 라벨의 confidence만 합산
+                    for chunk_idx, idx in enumerate(indices):
                         chunk_prob = probs[idx]
                         
-                        # 모든 라벨에 대해 confidence 누적
-                        for label_idx, conf in enumerate(chunk_prob):
+                        # top-n 라벨 인덱스 (내림차순 정렬)
+                        top_indices = chunk_prob.argsort()[-top_n:][::-1]
+                        
+                        print(f"\n[Chunk {chunk_idx}] Top-{top_n} 예측:")
+                        for rank, label_idx in enumerate(top_indices, 1):
                             label = self.id2label[label_idx]
-                            label_conf_dict[label] += float(conf)
+                            conf = float(chunk_prob[label_idx])
+
+                            # 노이즈 제거
+                            if conf < 0.3:
+                                print(f"  {rank}. {label} (conf={conf:.4f}) >> 노이즈 제거됨")
+                                continue
+
+                            print(f"  {rank}. {label} (conf={conf:.4f})")
+                            
+                            # confidence 누적
+                            label_conf_dict[label] += conf
                         
                     # 최종 결과: confidence 합이 가장 큰 라벨(soft voting) 선택
                     pred_label = max(label_conf_dict, key=label_conf_dict.get)
@@ -253,7 +268,7 @@ class FineTuningInference:
                     
                     pred_conf = round(label_conf_norm[pred_label], 4)
 
-                    print("라벨별 confidence 합산 결과:")
+                    print("\nChunk 별 confidence 합산 결과:")
                     for label, conf_sum in sorted(label_conf_dict.items(), key=lambda x: x[1], reverse=True):
                         print(f"   {label}: {round(conf_sum,4)}")
 
