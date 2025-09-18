@@ -10,7 +10,6 @@ import torch.nn.functional as F
 from trl import SFTTrainer, SFTConfig
 import pickle
 from dotenv import load_dotenv
-from torch import nn
 
 # .env 파일 로드
 load_dotenv()
