@@ -10,6 +10,7 @@ import torch.nn.functional as F
 from trl import SFTTrainer, SFTConfig
 import pickle
 from dotenv import load_dotenv
+from torch import nn
 
 # .env 파일 로드
 load_dotenv()
@@ -34,7 +35,7 @@ class FineTuningTrainer:
         self.tokenizer.pad_token = self.tokenizer.eos_token
         self.tokenizer.padding_side = 'right'
 
-    def setup_model(self, bnb_config_params=None, lora_config_params=None):
+    def setup_model(self, bnb_config_params=None, lora_config_params=None, layer_usage=100):
         if bnb_config_params is None:
             bnb_config_params = {
                 'load_in_4bit': True,
@@ -55,6 +56,49 @@ class FineTuningTrainer:
 
         self.model.config.use_cache = False
         self.model.config.pad_token_id = self.tokenizer.pad_token_id
+
+        total_layers = 0
+        downscaled_layers = 0
+        
+        def get_downscaled_length(total_layers, layer_usage):
+            return  max(1, int(total_layers * (layer_usage / 100))) # 사용할 레이어 수
+        
+        # model.transformer.h
+        if hasattr(self.model, 'transformer') and hasattr(self.model.transformer, 'h'): 
+            total_layers = len(self.model.transformer.h)
+            downscaled_layers = get_downscaled_length(total_layers, layer_usage)
+            self.model.transformer.h = self.model.transformer.h[:downscaled_layers]
+        # model.model.layer
+        elif hasattr(self.model, 'model') and hasattr(self.model.model, 'layer'): 
+            total_layers = len(self.model.model.layer)
+            downscaled_layers = get_downscaled_length(total_layers, layer_usage)
+            self.model.model.layer = self.model.model.layer[:downscaled_layers]
+        # model.model.blocks
+        elif hasattr(self.model, 'model') and hasattr(self.model.model, 'blocks'): 
+            total_layers = len(self.model.model.blocks)
+            downscaled_layers = get_downscaled_length(total_layers, layer_usage)
+            self.model.model.blocks = self.model.model.blocks[:downscaled_layers]
+        # model.model.layers
+        elif hasattr(self.model, 'model') and hasattr(self.model.model, 'layers'): 
+            total_layers = len(self.model.model.layers)
+            downscaled_layers = get_downscaled_length(total_layers, layer_usage)
+            self.model.model.layers = self.model.model.layers[:downscaled_layers]
+        # model.layers
+        elif hasattr(self.model, 'layers'): 
+            total_layers = len(self.model.layers)
+            downscaled_layers = get_downscaled_length(total_layers, layer_usage)
+            self.model.layers = self.model.layers[:downscaled_layers]
+
+        # config가 있으면 업데이트
+        if hasattr(self.model, 'config') and hasattr(self.model.config, 'n_layer'):
+            self.model.config.n_layer = downscaled_layers
+
+        if total_layers != 0:
+            print(f"[{self.model_name}] 모델의 전체 레이어 수 : [{total_layers}], 사용할 레이어 수 : [{downscaled_layers}], 사용률 : [{layer_usage}%]")
+        else:
+            print(f"[{self.model_name}] 모델은 transformer.h, model.layer, layers, model.blocks, models.layers 속성을 가지고있지 않음. 레이어 축소 건너뜀.")
+            print(f"[{self.model_name}] 최상위 속성(dir): {dir(self.model)}")
+            print(f"[{self.model_name}] 최상위 속성: {list(self.model.__dict__.keys())}")
 
         if lora_config_params is None:
             lora_config_params = {

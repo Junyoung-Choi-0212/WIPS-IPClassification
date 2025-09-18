@@ -25,6 +25,9 @@ def show():
         if not selected_cols:
             st.warning("Please select at least one column.")
 
+    with st.expander("**TRANSFORMER LAYER USAGE**"):
+        layer_usage = st.slider("SELECT LAYER USAGE(%)", min_value = 10, max_value = 100, value = 100, step = 10)
+
     with st.expander("**HYPERPARAMETER**", expanded=False):
         try:
             DataProcessor.validate_dataframe(df, ["사용자태그"])
@@ -37,14 +40,14 @@ def show():
             with row1_col1:
                 bnb_4bit_quant_type = st.selectbox("QUANTIZATION TYPE", ["nf4", "fp4"], index=0)
             with row1_col2:
-                for i in range(2): st.write("")  # 약간의 위쪽 패딩
+                for _ in range(2): st.write("")  # 약간의 위쪽 패딩
                 load_in_4bit = st.checkbox("4 - BIT QUANTIZATION", value=True)
                 
             row2_col1, row2_col2 = st.columns([1, 1])
             with row2_col1:
                 bnb_4bit_compute_dtype = st.selectbox("COMPUTE DTYPE", ["float16", "bfloat16", "float32"], index=0)
             with row2_col2:
-                for i in range(2): st.write("")  # 약간의 위쪽 패딩
+                for _ in range(2): st.write("")  # 약간의 위쪽 패딩
                 bnb_4bit_use_double_quant = st.checkbox("DOUBLE QUANTIZATION", value=True)
 
         with st.expander("**LoRA**", expanded=False):
@@ -129,7 +132,7 @@ def show():
                     'target_modules': target_modules
                 }
 
-                trainer.setup_model(bnb_config_params, lora_config_params)
+                trainer.setup_model(bnb_config_params, lora_config_params, layer_usage)
 
             with st.spinner("TRAINING MODEL ..."):
                 training_config_params = {
@@ -145,7 +148,9 @@ def show():
                     bnb_config_params, lora_config_params, training_config_params
                 )
 
+            with st.spinner("SAVING MODEL ..."):
                 trainer.save_model(output_dir)
+                
             try:
                 test_save_path = os.path.join(output_dir, "test_data.csv")
                 test_df.to_csv(test_save_path, index=False, encoding="utf-8-sig")
