@@ -105,17 +105,26 @@ class FineTuningTrainer:
 
         data_collator = DataCollatorWithPadding(tokenizer=self.tokenizer)
 
+        per_device_batch = 1
+        gradient_acc_step = 4
+        optim = 'paged_adamw_8bit'
+
+        if torch.cuda.get_device_properties(0).total_memory >= 8e9:  # 8GB 이상의 여유있는 PC라면 성능↑
+            per_device_batch = 2
+            gradient_acc_step = 2
+            optim = 'paged_adamw_32bit'
+
         default_training_args = {
             'output_dir': output_dir,
             'learning_rate': 2e-5,
-            'per_device_train_batch_size': 2,
-            'per_device_eval_batch_size': 2,
-            'gradient_accumulation_steps': 2,
-            'optim': 'paged_adamw_32bit',
+            'per_device_train_batch_size': per_device_batch,
+            'per_device_eval_batch_size': per_device_batch,
+            'gradient_accumulation_steps': gradient_acc_step,
+            'optim': optim,
             'lr_scheduler_type': 'cosine',
             'num_train_epochs': 5,
             'warmup_steps': 50,
-            'logging_steps': 10,
+            'logging_steps': 50,
             'fp16': True,
             'gradient_checkpointing': True,
             'dataset_text_field': 'text',
