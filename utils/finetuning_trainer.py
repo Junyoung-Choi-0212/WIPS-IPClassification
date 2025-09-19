@@ -81,6 +81,9 @@ class FineTuningTrainer:
         self.model = prepare_model_for_kbit_training(self.model)
         self.model = get_peft_model(self.model, peft_config)
 
+        # 레이어 축소 적용 여부 확인
+        print(f"[{self.model_name}] 최종 모델 config 레이어 수: {self.model.config.num_hidden_layers}")
+
         return peft_config
 
     def compute_metrics(self, pred):
