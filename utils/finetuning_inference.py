@@ -264,7 +264,14 @@ class FineTuningInference:
                     
                     # 신뢰도 합 정규화
                     total_conf = sum(label_conf_dict.values())
-                    label_conf_norm = {label: conf / total_conf for label, conf in label_conf_dict.items()}
+                    if total_conf == 0:
+                        n_labels = len(label_conf_dict)
+                        if n_labels > 0:
+                            label_conf_norm = {label: 1 / n_labels for label in label_conf_dict}
+                        else:
+                            label_conf_norm = {}
+                    else:
+                        label_conf_norm = {label: conf / total_conf for label, conf in label_conf_dict.items()}
                     
                     pred_conf = round(label_conf_norm[pred_label], 4)
 
