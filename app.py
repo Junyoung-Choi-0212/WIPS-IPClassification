@@ -74,6 +74,10 @@ if 'default_save_dir' not in st.session_state:
     default_dir = os.path.join(current_dir, "models") 
     os.makedirs(default_dir, exist_ok=True) # 경로가 없을 경우 생성
     st.session_state.default_save_dir = default_dir
+if 'inference_results' not in st.session_state:
+    st.session_state.inference_results = None
+if 'inference_fig' not in st.session_state:
+    st.session_state.inference_fig = None
 
 classification_method = sidebar.show()
 

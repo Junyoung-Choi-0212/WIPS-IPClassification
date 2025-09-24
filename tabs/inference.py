@@ -146,20 +146,14 @@ def show():
                 inference.load_model(model_path, is_merged_model=True)
 
             with st.spinner("RUNNING INFERENCE ..."):
-                results_df = inference.predict_patents(
+                st.session_state.inference_results = inference.predict_patents(
                     df, model_path,
                     selected_cols=selected_cols,
                     max_length=chunk_max_length,
                     stride=chunk_stride
                 )
 
-            st.toast("INFERENCE COMPLETED")
-
-            st.subheader("INFERENCE RESULT")
-            st.dataframe(results_df, use_container_width=True)
-
-            st.subheader("PREDICTION DISTRIBUTION")
-            pred_counts = results_df['예측분류'].value_counts()
+            pred_counts = st.session_state.inference_results['예측분류'].value_counts()
             
             labels = pred_counts.index.tolist()
             sizes = pred_counts.values.tolist()
@@ -191,20 +185,27 @@ def show():
             # 범례 마커(박스) 크기 조절
             fig.update_traces(marker=dict(line=dict(width=2)))  # 테두리 두껍게
 
-            # CSS로 정확히 중앙 정렬
-            st.markdown(
-                """
-                <div style='display:flex; justify-content:center;'>
-                    <div style='width:500px'>
-                """, 
-                unsafe_allow_html=True
-            )
-            st.plotly_chart(fig, use_container_width=True)
-            st.markdown("</div></div>", unsafe_allow_html=True)
-
-            st.session_state.inference_results = results_df
-            excel_download.show_finetuning(results_df)
+            st.session_state.inference_fig = fig
 
         except Exception as e:
             st.error(f"추론 중 오류 발생: {e}")
             st.code(str(e))
+            
+    if st.session_state.inference_results is not None:
+        st.toast("INFERENCE COMPLETED")
+        st.subheader("INFERENCE RESULT")
+        st.dataframe(st.session_state.inference_results, use_container_width=True)
+    if st.session_state.inference_fig is not None:
+        st.subheader("PREDICTION DISTRIBUTION")
+        # CSS로 정확히 중앙 정렬
+        st.markdown(
+            """
+            <div style='display:flex; justify-content:center;'>
+                <div style='width:500px'>
+            """, 
+            unsafe_allow_html=True
+        )
+        st.plotly_chart(st.session_state.inference_fig, use_container_width=True)
+        st.markdown("</div></div>", unsafe_allow_html=True)
+
+        excel_download.show_finetuning(st.session_state.inference_results)   
