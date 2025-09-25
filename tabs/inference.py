@@ -198,7 +198,7 @@ def show():
         classification_groups = st.session_state.inference_results.groupby('예측분류')
         
         for category, group in classification_groups:
-            with st.expander(f"**{category} ({len(group)}건)**", expanded = True):
+            with st.expander(f"**{category} ({len(group)}건)**", expanded = False):
                 display_df = group[['출원번호', '텍스트_프리뷰', '예측분류', '신뢰도']].copy()
                 display_df.columns = ['PATENT ID', 'TEXT PREVIEW', 'CLASSIFICATION', 'CONFIDENCE']
                 display_df = display_df.reset_index(drop=True)
