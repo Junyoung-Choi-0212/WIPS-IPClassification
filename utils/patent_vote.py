@@ -64,7 +64,8 @@ def patent_soft_voting(dataframe, probs, id2label):
 
             patent_results.append({
                 "출원번호": patent_id,
-                "텍스트": merged_text[:100] + "..." if len(merged_text) > 100 else merged_text,
+                "텍스트": merged_text,
+                "텍스트_프리뷰": merged_text[:100] + "..." if len(merged_text) > 100 else merged_text,
                 "예측분류": pred_label,
                 "신뢰도": pred_conf
             })
