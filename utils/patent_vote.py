@@ -2,16 +2,20 @@ TOP_N = 3  # 각 chunk에서 예측 결과 상위 n개 라벨의 confidence만 �
 
 # patent_id(출원번호) 별 chunk의 예측 확률 중 상위 [TOP_N]개를 합산한 후 정규화를 통한 신뢰도 계산 
 def patent_soft_voting(dataframe, probs, id2label):
+    print("[inference dataset]")
+    print(dataframe.head(5))
+    
     patent_results = []
 
     # 특허 단위로 그룹화
     for patent_id, group in dataframe.groupby('patent_id'):
         indices = group.index.tolist()
         group = group.copy()
+        
+        merged_text = group["text"].str.cat(sep=" ") # 특허 id 기준 텍스트 통합
 
         if len(indices) > 0:
-            # 라벨 별 confidence 합산 저장
-            label_conf_dict = {label: 0.0 for label in id2label.values()}
+            label_conf_dict = {label: 0.0 for label in id2label.values()} # 라벨 별 confidence 합산 저장
             
             print(f"\n [patent_id: {patent_id}]")
             
@@ -60,6 +64,7 @@ def patent_soft_voting(dataframe, probs, id2label):
 
             patent_results.append({
                 "출원번호": patent_id,
+                "텍스트": merged_text[:100] + "..." if len(merged_text) > 100 else merged_text,
                 "예측분류": pred_label,
                 "신뢰도": pred_conf
             })

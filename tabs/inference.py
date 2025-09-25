@@ -194,7 +194,15 @@ def show():
     if st.session_state.inference_results is not None:
         st.toast("INFERENCE COMPLETED")
         st.subheader("INFERENCE RESULT")
-        st.dataframe(st.session_state.inference_results, use_container_width=True)
+        
+        classification_groups = st.session_state.inference_results.groupby('예측분류')
+        
+        for category, group in classification_groups:
+            with st.expander(f"**{category} ({len(group)}건)**", expanded = True):
+                display_df = group[['출원번호', '텍스트', '예측분류', '신뢰도']].copy()
+                display_df.columns = ['PATENT ID', 'TEXT PREVIEW', 'CLASSIFICATION', 'CONFIDENCE']
+                st.dataframe(display_df, use_container_width = True)
+                
     if st.session_state.inference_fig is not None:
         st.subheader("PREDICTION DISTRIBUTION")
         # CSS로 정확히 중앙 정렬

@@ -222,9 +222,6 @@ class FineTuningInference:
             # -------------------------------
             df_chunked = df_chunked.reset_index(drop=True)
 
-            print("[inference dataset]")
-            print(df_chunked.head(5))
-
             return pd.DataFrame(patent_soft_voting(df_chunked, probs, self.id2label))
 
         except Exception as e:
