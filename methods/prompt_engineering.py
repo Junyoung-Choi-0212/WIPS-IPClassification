@@ -16,6 +16,7 @@ def show():
             with col1:
                 st.write("**DATA PREVIEW**")
                 df = df.reset_index(drop=True)
+                df.index = df.index + 1    # index가 1부터 시작하도록 변경
                 st.dataframe(df.head(), use_container_width = True)
                 st.metric("**TOTAL ROWS**", len(df))
                 
@@ -73,6 +74,7 @@ def show():
                 display_df = group[['text_preview', 'classification']].copy()
                 display_df.columns = ['TEXT PREVIEW', 'CLASSIFICATION']
                 display_df = display_df.reset_index(drop=True)
+                display_df.index = display_df.index + 1    # index가 1부터 시작하도록 변경
                 st.dataframe(display_df, use_container_width = True)
         
         st.subheader("PREDICTION DISTRIBUTION")
