@@ -15,6 +15,7 @@ def show():
             
             with col1:
                 st.write("**DATA PREVIEW**")
+                df = df.reset_index(drop=True)
                 st.dataframe(df.head(), use_container_width = True)
                 st.metric("**TOTAL ROWS**", len(df))
                 
@@ -71,6 +72,7 @@ def show():
             with st.expander(f"**{category} ({len(group)}건)**", expanded = True):
                 display_df = group[['text_preview', 'classification']].copy()
                 display_df.columns = ['TEXT PREVIEW', 'CLASSIFICATION']
+                display_df = display_df.reset_index(drop=True)
                 st.dataframe(display_df, use_container_width = True)
         
         st.subheader("PREDICTION DISTRIBUTION")
