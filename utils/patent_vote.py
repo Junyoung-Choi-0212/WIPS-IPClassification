@@ -30,11 +30,6 @@ def patent_soft_voting(dataframe, probs, id2label):
                     label = id2label[label_idx]
                     conf = float(chunk_prob[label_idx])
 
-                    # 노이즈 제거
-                    if conf < 0.3:
-                        print(f"  {rank}. {label} (conf={conf:.4f}) >> 노이즈 제거됨")
-                        continue
-
                     print(f"  {rank}. {label} (conf={conf:.4f})")
                     
                     # confidence 누적
