@@ -5,6 +5,9 @@ import pandas as pd
 import streamlit as st
 import time
 
+import plotly.express as px
+from openpyxl.drawing.image import Image as XLImage
+
 def show_promptengineering(results_df, classification_groups):
     download_df = results_df[['text', 'classification']].copy()
     download_df.columns = ['TEXT', 'CLASSIFICATION']
@@ -40,13 +43,13 @@ def show_finetuning(results_df):
         
     download_df = results_df[["출원번호", "텍스트", "예측분류", "신뢰도"]].copy()
     download_df.columns = ['PATENT ID', 'TEXT', 'CLASSIFICATION', 'CONFIDENCE']
-        
+    
     excel_buffer = BytesIO()
 
     with pd.ExcelWriter(excel_buffer, engine = 'openpyxl') as writer:
         download_df.to_excel(writer, sheet_name = '전체', index = False)
 
-        if '예측분류' in download_df.columns:
+        if 'CLASSIFICATION' in download_df.columns:
             classification_groups = download_df.groupby('예측분류')
             
             for category, group in classification_groups:
@@ -57,7 +60,24 @@ def show_finetuning(results_df):
             stats_df.columns = ['예측분류', '개수']
             stats_df.to_excel(writer, sheet_name = '통계', index = False)
         
-        if '신뢰도' in download_df.columns:
+            if st.session_state.inference_fig is not None:
+                # 파이차트 생성
+                fig = st.session_state.inference_fig
+                img_bytes = fig.to_image(format = "png")
+                
+                # Excel 워크북에 이미지 추가
+                workbook = writer.book
+                worksheet = workbook['통계']
+                img_stream = BytesIO(img_bytes)
+                xl_img = XLImage(img_stream)
+                
+                # 파이 차트 삽입을 위해 E ~ F 컬럼 열 너비 키우기
+                worksheet.column_dimensions["E"].width = 40
+                worksheet.column_dimensions["F"].width = 40
+                
+                worksheet.add_image(xl_img, "E2") # E2 셀에 파이 차트 이미지 삽입
+        
+        if 'CONFIDENCE' in download_df.columns:
             confidence_ranges = pd.cut(download_df['신뢰도'], 
                                      bins = [0, 0.5, 0.7, 0.85, 1.0], 
                                      labels = ['LOW (0-0.5)', 'MEDIUM (0.5-0.7)', 'HIGH (0.7-0.85)', 'VERY HIGH (0.85-1.0)'])
