@@ -4,9 +4,6 @@ from io import BytesIO
 import pandas as pd
 import streamlit as st
 import time
-import kaleido
-
-import plotly.express as px
 from openpyxl.drawing.image import Image as XLImage
 
 def show_promptengineering(results_df, classification_groups):
@@ -76,7 +73,7 @@ def show_finetuning(results_df):
                 worksheet.column_dimensions["D"].width = 45
                 worksheet.column_dimensions["E"].width = 45
                 
-                worksheet.add_image(xl_img, "D2") # E2 셀에 파이 차트 이미지 삽입
+                worksheet.add_image(xl_img, "D2") # D2 셀에 파이 차트 이미지 삽입
         
         if 'CONFIDENCE' in download_df.columns:
             confidence_ranges = pd.cut(download_df['CONFIDENCE'], 
