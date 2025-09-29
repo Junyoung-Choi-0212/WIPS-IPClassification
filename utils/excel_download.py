@@ -39,7 +39,7 @@ def show_finetuning(results_df):
         st.warning("다운로드할 결과가 없습니다.")
         return
         
-    download_df = results_df[["출원번호", "텍스트", "예측분류", "신뢰도"]].copy()
+    download_df = results_df[["patent_id", "text", "classification", "confidence"]].copy()
     download_df.columns = ['PATENT ID', 'TEXT', 'CLASSIFICATION', 'CONFIDENCE']
     
     excel_buffer = BytesIO()

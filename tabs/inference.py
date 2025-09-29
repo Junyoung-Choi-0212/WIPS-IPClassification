@@ -153,7 +153,7 @@ def show():
                     stride=chunk_stride
                 )
 
-            pred_counts = st.session_state.inference_results['예측분류'].value_counts()
+            pred_counts = st.session_state.inference_results['classification'].value_counts()
             
             labels = pred_counts.index.tolist()
             sizes = pred_counts.values.tolist()
@@ -205,7 +205,7 @@ def show():
         
         for category, group in classification_groups:
             with st.expander(f"**{category} ({len(group)}건)**", expanded = False):
-                display_df = group[['출원번호', '텍스트_프리뷰', '예측분류', '신뢰도']].copy()
+                display_df = group[['patent_id', 'text_preview', 'classification', 'confidence']].copy()
                 display_df.columns = ['PATENT ID', 'TEXT PREVIEW', 'CLASSIFICATION', 'CONFIDENCE']
                 display_df = display_df.reset_index(drop=True)
                 display_df.index = display_df.index + 1    # index가 1부터 시작하도록 변경

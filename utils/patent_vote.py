@@ -58,11 +58,11 @@ def patent_soft_voting(dataframe, probs, id2label):
             print(f"=> 최종 예측: {pred_label} (confidence 총합: {round(sorted(label_conf_dict.items(), key=lambda x: x[1], reverse=True)[0][1], 4)}, 신뢰도(confidence 정규화): {pred_conf})\n")
 
             patent_results.append({
-                "출원번호": patent_id,
-                "텍스트": merged_text,
-                "텍스트_프리뷰": merged_text[:100] + "..." if len(merged_text) > 100 else merged_text,
-                "예측분류": pred_label,
-                "신뢰도": pred_conf
+                "patent_id": patent_id,
+                "text": merged_text,
+                "text_preview": merged_text[:100] + "..." if len(merged_text) > 100 else merged_text,
+                "classification": pred_label,
+                "confidence": pred_conf
             })
     
     return patent_results
