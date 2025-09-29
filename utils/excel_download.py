@@ -4,6 +4,7 @@ from io import BytesIO
 import pandas as pd
 import streamlit as st
 import time
+import kaleido
 
 import plotly.express as px
 from openpyxl.drawing.image import Image as XLImage
@@ -50,13 +51,13 @@ def show_finetuning(results_df):
         download_df.to_excel(writer, sheet_name = '전체', index = False)
 
         if 'CLASSIFICATION' in download_df.columns:
-            classification_groups = download_df.groupby('예측분류')
+            classification_groups = download_df.groupby('CLASSIFICATION')
             
             for category, group in classification_groups:
                 safe_name = str(category).replace('/', '_').replace(':', '_')[:31]
                 group.to_excel(writer, sheet_name = safe_name, index = False)
             
-            stats_df = download_df['예측분류'].value_counts().reset_index()
+            stats_df = download_df['CLASSIFICATION'].value_counts().reset_index()
             stats_df.columns = ['예측분류', '개수']
             stats_df.to_excel(writer, sheet_name = '통계', index = False)
         
@@ -72,13 +73,13 @@ def show_finetuning(results_df):
                 xl_img = XLImage(img_stream)
                 
                 # 파이 차트 삽입을 위해 E ~ F 컬럼 열 너비 키우기
-                worksheet.column_dimensions["E"].width = 40
-                worksheet.column_dimensions["F"].width = 40
+                worksheet.column_dimensions["D"].width = 45
+                worksheet.column_dimensions["E"].width = 45
                 
-                worksheet.add_image(xl_img, "E2") # E2 셀에 파이 차트 이미지 삽입
+                worksheet.add_image(xl_img, "D2") # E2 셀에 파이 차트 이미지 삽입
         
         if 'CONFIDENCE' in download_df.columns:
-            confidence_ranges = pd.cut(download_df['신뢰도'], 
+            confidence_ranges = pd.cut(download_df['CONFIDENCE'], 
                                      bins = [0, 0.5, 0.7, 0.85, 1.0], 
                                      labels = ['LOW (0-0.5)', 'MEDIUM (0.5-0.7)', 'HIGH (0.7-0.85)', 'VERY HIGH (0.85-1.0)'])
             confidence_stats = confidence_ranges.value_counts().reset_index()
