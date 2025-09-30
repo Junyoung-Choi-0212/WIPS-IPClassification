@@ -3,6 +3,7 @@ from utils import excel_download
 import pandas as pd
 import streamlit as st
 import plotly.graph_objects as go
+import plotly.express as px
 
 def show():
     if st.session_state.uploaded_df is not None:
@@ -83,6 +84,11 @@ def show():
         labels = classification_counts.index.tolist()
         sizes = classification_counts.values.tolist()
 
+        colors = px.colors.qualitative.Set3 # 12색, 파스텔톤
+        # colors = px.colors.qualitative.Bold # 진한 색
+        # colors = px.colors.qualitative.Pastel # 은은한 색
+        # colors = px.colors.qualitative.Dark24 # 24색, 진한 색 
+
         # Plotly 파이차트
         fig = go.Figure(data=[go.Pie(
             labels=labels,
@@ -94,7 +100,8 @@ def show():
             textposition='inside',              # 조각 안쪽에 표시
             insidetextorientation='horizontal',  # 텍스트 고정, 회전 안 됨
             pull=[0.1 if i == sizes.index(max(sizes)) else 0 for i in range(len(sizes))], # 가장 분류 카운트가 높은 조각을 밖으로 분리
-            hovertemplate='%{label}<br>Count: %{value}<br>Percent: %{percent}<extra></extra>' # 마우스 호버링 시 노출되는 텍스트 템플릿
+            hovertemplate='%{label}<br>Count: %{value}<br>Percent: %{percent}<extra></extra>', # 마우스 호버링 시 노출되는 텍스트 템플릿
+            marker=dict(colors=colors) # 색상 팔레트 적용
         )])
 
         fig.update_layout(
@@ -110,6 +117,8 @@ def show():
         # 범례 마커(박스) 크기 조절
         fig.update_traces(marker=dict(line=dict(width=2)))  # 테두리 두껍게
         
+        st.session_state.prompt_fig = fig
+        
         # CSS로 정확히 중앙 정렬
         st.markdown(
             """
@@ -118,7 +127,7 @@ def show():
             """, 
             unsafe_allow_html=True
         )
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(st.session_state.prompt_fig, use_container_width=True)
         st.markdown("</div></div>", unsafe_allow_html=True)
 
         excel_download.show_promptengineering(results_df, classification_groups)

@@ -25,6 +25,23 @@ def show_promptengineering(results_df, classification_groups):
         stats_df.columns = ['CLASSIFICATION', 'COUNT']
         stats_df.to_excel(writer, sheet_name = '통계', index = False)
 
+        if st.session_state.prompt_fig is not None:
+            # 파이차트 생성
+            fig = st.session_state.prompt_fig
+            img_bytes = fig.to_image(format = "png")
+            
+            # Excel 워크북에 이미지 추가
+            workbook = writer.book
+            worksheet = workbook['통계']
+            img_stream = BytesIO(img_bytes)
+            xl_img = XLImage(img_stream)
+            
+            # 파이 차트 삽입을 위해 E ~ F 컬럼 열 너비 키우기
+            worksheet.column_dimensions["D"].width = 45
+            worksheet.column_dimensions["E"].width = 45
+            
+            worksheet.add_image(xl_img, "D2") # D2 셀에 파이 차트 이미지 삽입
+
     excel_buffer.seek(0)
 
     st.download_button(

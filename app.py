@@ -69,6 +69,8 @@ if 'step2_prompt' not in st.session_state:
 3. 모델이 생각 과정을 내보내면 안 됨
 4. 출력 예시: {example}
 5. 후보를 출력하지 못하면 모델은 반드시 다시 시도"""
+if 'prompt_fig' not in st.session_state:
+    st.session_state.prompt_fig = None
 if 'default_save_dir' not in st.session_state:
     current_dir = os.getcwd()
     default_dir = os.path.join(current_dir, "models") 
