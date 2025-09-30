@@ -71,7 +71,7 @@ def show():
         classification_groups = results_df.groupby('classification')
         
         for category, group in classification_groups:
-            with st.expander(f"**{category} ({len(group)}건)**", expanded = True):
+            with st.expander(f"**{category} ({len(group)}건)**", expanded = False):
                 display_df = group[['text_preview', 'classification']].copy()
                 display_df.columns = ['TEXT PREVIEW', 'CLASSIFICATION']
                 display_df = display_df.reset_index(drop=True)
