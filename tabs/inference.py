@@ -201,7 +201,7 @@ def show():
         st.toast("INFERENCE COMPLETED")
         st.subheader("INFERENCE RESULT")
         
-        classification_groups = st.session_state.inference_results.groupby('예측분류')
+        classification_groups = st.session_state.inference_results.groupby('classification')
         
         for category, group in classification_groups:
             with st.expander(f"**{category} ({len(group)}건)**", expanded = False):
