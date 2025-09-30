@@ -152,12 +152,7 @@ def show():
                     stride=chunk_stride
                 )
 
-            pred_counts = st.session_state.inference_results['classification'].value_counts()
-            
-            labels = pred_counts.index.tolist()
-            sizes = pred_counts.values.tolist()
-
-            st.session_state.inference_fig = get_chart_figure(labels, sizes)
+            st.session_state.inference_fig = get_chart_figure(st.session_state.inference_results['classification'])
 
         except Exception as e:
             st.error(f"추론 중 오류 발생: {e}")

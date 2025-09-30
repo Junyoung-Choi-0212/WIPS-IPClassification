@@ -1,7 +1,11 @@
 import plotly.graph_objects as go
 import plotly.express as px
 
-def get_chart_figure(labels, sizes):
+def get_chart_figure(classification):
+    value_counts = classification.value_counts()
+    labels = value_counts.index.tolist()
+    sizes = value_counts.values.tolist()
+    
     colors = px.colors.qualitative.Set3 # 12색, 파스텔톤
     # colors = px.colors.qualitative.Bold # 진한 색
     # colors = px.colors.qualitative.Pastel # 은은한 색

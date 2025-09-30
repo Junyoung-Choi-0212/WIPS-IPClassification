@@ -78,12 +78,8 @@ def show():
                 st.dataframe(display_df, use_container_width = True)
         
         st.subheader("PREDICTION DISTRIBUTION")
-        classification_counts = results_df['classification'].value_counts()
         
-        labels = classification_counts.index.tolist()
-        sizes = classification_counts.values.tolist()
-        
-        st.session_state.prompt_fig = get_chart_figure(labels, sizes)
+        st.session_state.prompt_fig = get_chart_figure(results_df['classification'])
         
         # CSS로 정확히 중앙 정렬
         st.markdown(
