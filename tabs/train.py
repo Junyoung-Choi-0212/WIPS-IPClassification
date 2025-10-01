@@ -1,5 +1,5 @@
 from dotenv import load_dotenv
-from utils.data_proceesor import DataProcessor
+from utils.data_proceesor import create_balanced_datasetdict, get_available_columns, prepare_data, validate_dataframe
 from utils.finetuning_trainer import FineTuningTrainer
 from utils.text_chunker import SlidingWindowChunker
 
@@ -12,7 +12,7 @@ def show():
     with st.expander("**COLUMNS TO USE FOR TRAIN**", expanded=True):
         df = st.session_state.uploaded_df
 
-        available_cols = DataProcessor.get_available_columns(df)
+        available_cols = get_available_columns(df)
         selected_cols = st.multiselect(
             "SELECTED COLUMNS",
             options=available_cols,
@@ -28,7 +28,7 @@ def show():
 
     with st.expander("**HYPERPARAMETER**", expanded=False):
         try:
-            DataProcessor.validate_dataframe(df, ["사용자태그"])
+            validate_dataframe(df, ["사용자태그"])
         except ValueError as e:
             st.error(e)
             return
@@ -98,10 +98,10 @@ def show():
                 trainer.initialize_tokenizer()
 
             with st.spinner("PREPROCESSING DATA ..."):
-                processed_df = DataProcessor.prepare_data(trainer, df, selected_cols=selected_cols) # 선택한 컬럼 병합 및 결과 라벨 숫자화
+                processed_df = prepare_data(trainer, df, selected_cols=selected_cols) # 선택한 컬럼 병합 및 결과 라벨 숫자화
                 chunker = SlidingWindowChunker(trainer.tokenizer) # chunking 할 때 사용할 tokenizer 설정
                 df_chunked = chunker.create_chunked_dataset(processed_df, max_length, stride) # 전처리 된 dataframe을 chunking
-                tokenized_dataset, test_df = DataProcessor.create_balanced_datasetdict(df_chunked, trainer.tokenizer, test_size=test_size) # 가장 적은 갯수의 데이터를 보유하고있는 라벨에 맞춰 라벨 별 동일한 수의 데이터 추출 
+                tokenized_dataset, test_df = create_balanced_datasetdict(df_chunked, trainer.tokenizer, test_size=test_size) # 가장 적은 갯수의 데이터를 보유하고있는 라벨에 맞춰 라벨 별 동일한 수의 데이터 추출 
 
             with st.spinner("CONFIGURING MODEL ..."):
                 bnb_config_params = {'load_in_4bit': load_in_4bit, 'bnb_4bit_quant_type': bnb_4bit_quant_type, 'bnb_4bit_compute_dtype': bnb_4bit_compute_dtype, 'bnb_4bit_use_double_quant': bnb_4bit_use_double_quant}

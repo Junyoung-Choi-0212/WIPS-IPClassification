@@ -2,7 +2,7 @@ from datasets import Dataset
 from dotenv import load_dotenv
 from peft import PeftModel
 from transformers import AutoModelForSequenceClassification, AutoTokenizer, BitsAndBytesConfig
-from utils.data_proceesor import DataProcessor
+from utils.data_proceesor import prepare_data
 from utils.patent_vote import patent_soft_voting
 from utils.text_chunker import SlidingWindowChunker
 
@@ -111,7 +111,7 @@ class FineTuningInference:
             if selected_cols is None:
                 selected_cols = ["발명의 명칭", "요약", "전체청구항"]
 
-            processed_df = DataProcessor.prepare_data(self, df, selected_cols)
+            processed_df = prepare_data(self, df, selected_cols)
             chunker = SlidingWindowChunker(self.tokenizer)
             
             df_chunked = chunker.create_chunked_dataset(processed_df, max_length, stride)
