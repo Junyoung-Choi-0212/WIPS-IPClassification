@@ -70,8 +70,7 @@ def show():
             col1, col2 = st.columns(2)
             with col1:
                 epochs = st.number_input("EPOCHS", min_value=1, max_value=10, value=5)
-                learning_rate = st.number_input("LEARNING RATE", min_value=1e-7, max_value=1e-3, value=2e-5,
-                                                format="%.0e")
+                learning_rate = st.number_input("LEARNING RATE", min_value=1e-7, max_value=1e-3, value=2e-5, format="%.0e")
             with col2:
                 warmup_steps = st.number_input("WARMUP STEPS", min_value=0, max_value=100, value=50)
                 test_size = st.number_input("TEST SIZE", min_value=0.1, max_value=0.3, value=0.2)
@@ -84,10 +83,7 @@ def show():
             stride = st.number_input("STRIDE", min_value=10, max_value=100, value=50)
             
     with st.expander("**MODEL SAVE PATH**", expanded = False):
-        model_dir = st.text_input(
-            "OUTPUT DIR",
-            value = st.session_state.default_save_dir
-        )
+        model_dir = st.text_input("OUTPUT DIR", value = st.session_state.default_save_dir)
         
         model_name_input = st.text_input("MODEL NAME", value="ft_gemma_2_2b")
         os.makedirs(model_dir, exist_ok=True) # 경로가 없을 경우 생성
@@ -105,24 +101,12 @@ def show():
 
             with st.spinner("PREPROCESSING DATA ..."):
                 processed_df = DataProcessor.prepare_data(trainer, df, selected_cols=selected_cols)
-                
                 chunker = SlidingWindowChunker(trainer.tokenizer)
-                
                 df_chunked = chunker.create_chunked_dataset(processed_df, max_length, stride)
-
-                # 수정된 부분: 반환값 2개만 받음
-                tokenized_dataset, test_df = DataProcessor.create_balanced_datasetdict(
-                    df_chunked, trainer.tokenizer, test_size=test_size
-                )
+                tokenized_dataset, test_df = DataProcessor.create_balanced_datasetdict(df_chunked, trainer.tokenizer, test_size=test_size)
 
             with st.spinner("CONFIGURING MODEL ..."):
-                bnb_config_params = {
-                    'load_in_4bit': load_in_4bit,
-                    'bnb_4bit_quant_type': bnb_4bit_quant_type,
-                    'bnb_4bit_compute_dtype': bnb_4bit_compute_dtype,
-                    'bnb_4bit_use_double_quant': bnb_4bit_use_double_quant
-                }
-
+                bnb_config_params = {'load_in_4bit': load_in_4bit, 'bnb_4bit_quant_type': bnb_4bit_quant_type, 'bnb_4bit_compute_dtype': bnb_4bit_compute_dtype, 'bnb_4bit_use_double_quant': bnb_4bit_use_double_quant}
                 lora_config_params = {
                     'lora_alpha': lora_alpha,
                     'lora_dropout': lora_dropout,
@@ -135,18 +119,8 @@ def show():
                 trainer.setup_model(bnb_config_params, lora_config_params, layer_usage)
 
             with st.spinner("TRAINING MODEL ..."):
-                training_config_params = {
-                    'num_train_epochs': epochs,
-                    'learning_rate': learning_rate,
-                    'warmup_steps': warmup_steps,
-                    'max_length': max_length
-                }
-
-                # 수정된 부분: train_model 에 tokenized_dataset 전달
-                eval_results = trainer.train_model(
-                    tokenized_dataset, output_dir,
-                    bnb_config_params, lora_config_params, training_config_params
-                )
+                training_config_params = {'num_train_epochs': epochs, 'learning_rate': learning_rate, 'warmup_steps': warmup_steps, 'max_length': max_length}
+                eval_results = trainer.train_model(tokenized_dataset, output_dir, lora_config_params, training_config_params)
 
             with st.spinner("SAVING MODEL ..."):
                 trainer.save_model(output_dir)
@@ -159,7 +133,6 @@ def show():
                 st.warning(f"Could not save test dataset: {e}")
 
             st.toast("TRAIN COMPLETED")
-
             st.subheader("TRAIN RESULT")
 
             col1, col2, col3, col4 = st.columns(4)
@@ -172,12 +145,7 @@ def show():
             with col4:
                 st.metric("**RECALL**", f"{eval_results['eval_recall']:.4f}")
 
-            st.session_state.model_info = {
-                "model_path": output_dir,
-                "labels_list": trainer.labels_list,
-                "label2id": trainer.label2id,
-                "id2label": trainer.id2label
-            }
+            st.session_state.model_info = {"model_path": output_dir, "labels_list": trainer.labels_list, "label2id": trainer.label2id, "id2label": trainer.id2label}
 
         except Exception as e:
             st.error(e)

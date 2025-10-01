@@ -59,41 +59,27 @@ def show():
                     if valid_models:
                         # 사용자에게 보여줄 이름과 실제 경로 분리
                         model_names = [name for name, _ in valid_models]
-                        selected_model_name = st.selectbox(
-                            "검색된 병합 모델 중 하나를 선택하세요.",
-                            options=model_names
-                        )
-
-                        # 선택된 모델의 실제 경로 찾기
-                        model_path = next(path for name, path in valid_models if name == selected_model_name)
+                        selected_model_name = st.selectbox("검색된 병합 모델 중 하나를 선택하세요.", options=model_names)
+                        
+                        model_path = next(path for name, path in valid_models if name == selected_model_name) # 선택된 모델의 실제 경로 찾기
 
                         st.info(f"선택된 모델 경로: {model_path}")
                     else:
                         st.warning("No merged model could be found using automatic search.")
-                        model_path = st.text_input(
-                            "병합된 모델의 경로를 직접 입력하세요.",
-                            value=os.path.join(st.session_state.default_save_dir, "ft_gemma_2_2b", "merged_model")
-                        )
+                        model_path = st.text_input("병합된 모델의 경로를 직접 입력하세요.", value=os.path.join(st.session_state.default_save_dir, "ft_gemma_2_2b", "merged_model"))
                 except Exception as e:
                     st.error(f"모델 검색 중 오류 발생: {e}")
-                    model_path = st.text_input(
-                        "병합된 모델의 경로를 직접 입력하세요.",
-                        value=os.path.join(st.session_state.default_save_dir, "ft_gemma_2_2b", "merged_model")
-                    )
+                    model_path = st.text_input("병합된 모델의 경로를 직접 입력하세요.", value=os.path.join(st.session_state.default_save_dir, "ft_gemma_2_2b", "merged_model"))
             else:
                 st.error(f"The default directory does not exist. : {base_dir}")
-                model_path = st.text_input(
-                    "병합된 모델의 경로를 직접 입력하세요.",
-                    value=os.path.join(st.session_state.default_save_dir, "ft_gemma_2_2b", "merged_model")
-                )
+                model_path = st.text_input("병합된 모델의 경로를 직접 입력하세요.", value=os.path.join(st.session_state.default_save_dir, "ft_gemma_2_2b", "merged_model"))
 
         model_exists = False
 
         if model_path and os.path.exists(model_path):
             # 병합 모델 파일들 존재 확인
             config_exists = os.path.exists(os.path.join(model_path, 'config.json'))
-            model_file_exists = (os.path.exists(os.path.join(model_path, 'pytorch_model.bin')) or
-                                 os.path.exists(os.path.join(model_path, 'model.safetensors')))
+            model_file_exists = (os.path.exists(os.path.join(model_path, 'pytorch_model.bin')) or os.path.exists(os.path.join(model_path, 'model.safetensors')))
 
             if config_exists and model_file_exists:
                 model_exists = True
@@ -126,13 +112,9 @@ def show():
         with st.expander("**CHUNKING SETTINGS**", expanded=False):
             col1, col2 = st.columns(2)
             with col1:
-                chunk_max_length = st.number_input(
-                    "MAX LENGTH", min_value=128, max_value=1024, value=512, key="chunk_max_length"
-                )
+                chunk_max_length = st.number_input("MAX LENGTH", min_value=128, max_value=1024, value=512, key="chunk_max_length")
             with col2:
-                chunk_stride = st.number_input(
-                    "STRIDE", min_value=10, max_value=100, value=50, key="chunk_stride"
-                )
+                chunk_stride = st.number_input("STRIDE", min_value=10, max_value=100, value=50, key="chunk_stride")
 
     if st.button("**I N F E R E N C E**", type="primary", use_container_width=True, disabled=not model_exists):
         try:
@@ -145,12 +127,7 @@ def show():
                 inference.load_model(model_path, is_merged_model=True)
 
             with st.spinner("RUNNING INFERENCE ..."):
-                st.session_state.inference_results = inference.predict_patents(
-                    df, model_path,
-                    selected_cols=selected_cols,
-                    max_length=chunk_max_length,
-                    stride=chunk_stride
-                )
+                st.session_state.inference_results = inference.predict_patents(df, model_path, selected_cols=selected_cols, max_length=chunk_max_length, stride=chunk_stride)
 
             st.session_state.inference_fig = get_chart_figure(st.session_state.inference_results['classification'])
 

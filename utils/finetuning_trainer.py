@@ -29,11 +29,7 @@ class FineTuningTrainer:
         self.id2label = None
 
     def initialize_tokenizer(self):
-        self.tokenizer = AutoTokenizer.from_pretrained(
-            self.model_name,
-            token=self.hf_token,
-            trust_remote_code=True
-        )
+        self.tokenizer = AutoTokenizer.from_pretrained(self.model_name, token=self.hf_token, trust_remote_code=True)
         self.tokenizer.pad_token = self.tokenizer.eos_token
         self.tokenizer.padding_side = 'right'
 
@@ -52,21 +48,12 @@ class FineTuningTrainer:
             self.tokenizer.save_pretrained(temp_dir)
             
             if bnb_config_params is None:
-                bnb_config_params = {
-                    'load_in_4bit': True,
-                    'bnb_4bit_quant_type': 'nf4',
-                    'bnb_4bit_compute_dtype': 'float16',
-                    'bnb_4bit_use_double_quant': True
-                }
+                bnb_config_params = {'load_in_4bit': True, 'bnb_4bit_quant_type': 'nf4', 'bnb_4bit_compute_dtype': 'float16', 'bnb_4bit_use_double_quant': True}
 
             bnb_config = BitsAndBytesConfig(**bnb_config_params)
 
             # 임시로 저장했던 모델을 불러오면서 양자화 진행
-            self.model = AutoModelForSequenceClassification.from_pretrained(
-                temp_dir,
-                device_map='auto',
-                quantization_config=bnb_config
-            )
+            self.model = AutoModelForSequenceClassification.from_pretrained(temp_dir, device_map='auto', quantization_config=bnb_config)
 
             torch.cuda.empty_cache() # GPU 캐시 정리
 
@@ -81,7 +68,6 @@ class FineTuningTrainer:
             }
 
         peft_config = LoraConfig(**lora_config_params)
-
         self.model = prepare_model_for_kbit_training(self.model)
         self.model = get_peft_model(self.model, peft_config)
         
@@ -89,9 +75,8 @@ class FineTuningTrainer:
         device = "cuda" if torch.cuda.is_available() else "cpu"
         self.model = self.model.to(device)
         torch.cuda.empty_cache() # GPU 캐시 정리
-
-        # 레이어 축소 적용 여부 확인
-        print(f"[{self.model_name}] 최종 모델 config 레이어 수: {self.model.config.num_hidden_layers}")
+        
+        print(f"[{self.model_name}] 최종 모델 config 레이어 수: {self.model.config.num_hidden_layers}") # 레이어 축소 적용 여부 확인
 
         return peft_config
 
@@ -113,8 +98,7 @@ class FineTuningTrainer:
             'eval_loss': loss
         }
 
-    def train_model(self, tokenized_dataset, output_dir, bnb_config_params=None, lora_config_params=None,
-                    training_config_params=None, use_balanced_split=True):
+    def train_model(self, tokenized_dataset, output_dir, lora_config_params=None, training_config_params=None):
         """DatasetDict을 받도록 수정"""
 
         # DatasetDict인지 확인
@@ -122,8 +106,7 @@ class FineTuningTrainer:
             tokenized_train = tokenized_dataset['train']
             tokenized_test = tokenized_dataset['test']
         else:
-            # 기존 방식 호환성
-            tokenized_train, tokenized_test = tokenized_dataset
+            tokenized_train, tokenized_test = tokenized_dataset # 기존 방식 호환성
 
         data_collator = DataCollatorWithPadding(tokenizer=self.tokenizer)
 
@@ -131,7 +114,7 @@ class FineTuningTrainer:
         gradient_acc_step = 4
         optim = 'paged_adamw_8bit'
 
-        if torch.cuda.get_device_properties(0).total_memory >= 8e9:  # 8GB 이상의 여유있는 PC라면 성능↑
+        if torch.cuda.get_device_properties(0).total_memory >= 8e9:  # GPU 메모리가 8GB 이상의 여유있는 PC라면 성능↑
             per_device_batch = 2
             gradient_acc_step = 2
             optim = 'paged_adamw_32bit'
@@ -187,11 +170,7 @@ class FineTuningTrainer:
 
         os.makedirs(output_dir, exist_ok=True)
         with open(os.path.join(output_dir, 'label_mappings.pkl'), 'wb') as f:
-            pickle.dump({
-                'labels_list': self.labels_list,
-                'label2id': self.label2id,
-                'id2label': self.id2label
-            }, f)
+            pickle.dump({'labels_list': self.labels_list, 'label2id': self.label2id, 'id2label': self.id2label}, f)
 
         return self.trainer.evaluate()
 
@@ -200,8 +179,7 @@ class FineTuningTrainer:
 
         if self.trainer:
             if merge_adapter:
-                # 어댑터 병합
-                merged_model = self.trainer.model.merge_and_unload()
+                merged_model = self.trainer.model.merge_and_unload() # 어댑터 병합
 
                 # 병합된 모델 저장
                 merged_output_dir = os.path.join(output_dir, "merged_model")

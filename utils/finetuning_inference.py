@@ -59,17 +59,9 @@ class FineTuningInference:
 
         # 토크나이저 로드
         try:
-            self.tokenizer = AutoTokenizer.from_pretrained(
-                model_path,
-                token=self.hf_token,
-                trust_remote_code=True
-            )
+            self.tokenizer = AutoTokenizer.from_pretrained(model_path, token=self.hf_token, trust_remote_code=True)
         except Exception:
-            self.tokenizer = AutoTokenizer.from_pretrained(
-                self.model_name,
-                token=self.hf_token,
-                trust_remote_code=True
-            )
+            self.tokenizer = AutoTokenizer.from_pretrained(self.model_name, token=self.hf_token, trust_remote_code=True)
 
         if self.tokenizer.pad_token is None:
             self.tokenizer.pad_token = self.tokenizer.eos_token
@@ -89,12 +81,7 @@ class FineTuningInference:
                 print("병합된 모델을 로드했습니다.")
             else:
                 # 기존 방식 (베이스 모델 + 어댑터)
-                bnb_config = BitsAndBytesConfig(
-                    load_in_4bit=True,
-                    bnb_4bit_quant_type='nf4',
-                    bnb_4bit_compute_dtype='float16',
-                    bnb_4bit_use_double_quant=True
-                )
+                bnb_config = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_quant_type='nf4', bnb_4bit_compute_dtype='float16', bnb_4bit_use_double_quant=True)
 
                 # 베이스 모델을 SEQ_CLS로 로드
                 base_model = AutoModelForSequenceClassification.from_pretrained(
@@ -106,19 +93,11 @@ class FineTuningInference:
                     trust_remote_code=True
                 )
 
-                # 어댑터 로드 및 병합
-                self.model = PeftModel.from_pretrained(
-                    base_model,
-                    model_path,
-                    device_map='auto'
-                )
-
-                # 병합
-                self.model = self.model.merge_and_unload()
+                self.model = PeftModel.from_pretrained(base_model, model_path, device_map='auto') # 어댑터 로드 및 병합
+                self.model = self.model.merge_and_unload() # 병합
                 print("어댑터를 병합하여 로드했습니다.")
 
             self.model.eval()
-
         except Exception as e:
             raise ValueError(e)
 
@@ -129,19 +108,15 @@ class FineTuningInference:
             # -------------------------------
             if model_path and not self.model:
                 self.load_model(model_path)
-
             if not self.model or not self.tokenizer:
                 raise ValueError("모델이 로드되지 않았습니다.")
-
             if selected_cols is None:
                 selected_cols = ["발명의 명칭", "요약", "전체청구항"]
 
             processed_df = DataProcessor.prepare_data(self, df, selected_cols)
-            
             chunker = SlidingWindowChunker(self.tokenizer)
             
             df_chunked = chunker.create_chunked_dataset(processed_df, max_length, stride)
-
         except Exception as e:
             import traceback
             print(e)
@@ -168,12 +143,7 @@ class FineTuningInference:
             # tokenization
             # -------------------------------
             def preprocess_function(examples):
-                tokenized = self.tokenizer(
-                    examples['text'],
-                    truncation=True,
-                    max_length=max_length,
-                    padding=True
-                )
+                tokenized = self.tokenizer(examples['text'], truncation=True, max_length=max_length, padding=True)
                 return tokenized
 
             tokenized_test = test_data.map(preprocess_function, batched=True)
@@ -209,7 +179,6 @@ class FineTuningInference:
                     all_predictions.append(predictions.cpu())
 
             probs = torch.cat(all_predictions, dim=0).numpy()
-
         except Exception as e:
             import traceback
             print(e)
@@ -223,7 +192,6 @@ class FineTuningInference:
             df_chunked = df_chunked.reset_index(drop=True)
 
             return pd.DataFrame(patent_soft_voting(df_chunked, probs, self.id2label))
-
         except Exception as e:
             import traceback
             print(e)
