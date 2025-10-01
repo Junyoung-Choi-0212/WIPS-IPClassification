@@ -1,6 +1,6 @@
 from components.prompt_engineering import category_settings, prompt_settings
 from utils import excel_download
-from utils.result_pie_chart import get_chart_figure
+from utils.result_pie_chart import PIE_CHART_COLORS, get_chart_figure
 
 import pandas as pd
 import streamlit as st
@@ -78,6 +78,9 @@ def show():
         st.subheader("PREDICTION DISTRIBUTION")
         
         st.session_state.prompt_fig = get_chart_figure(results_df['classification'])
+        
+        palette_name = st.selectbox("결과 그래프 색상 테마 선택", list(PIE_CHART_COLORS.keys()), index=0)
+        st.session_state.prompt_fig.update_traces(marker=dict(colors=PIE_CHART_COLORS[palette_name]))
         
         # CSS로 정확히 중앙 정렬
         st.markdown(

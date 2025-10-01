@@ -1,7 +1,7 @@
 from dotenv import load_dotenv
 from utils import excel_download
 from utils.finetuning_inference import FineTuningInference
-from utils.result_pie_chart import get_chart_figure
+from utils.result_pie_chart import PIE_CHART_COLORS, get_chart_figure
 
 import glob
 import os
@@ -149,6 +149,10 @@ def show():
                 
     if st.session_state.inference_fig is not None:
         st.subheader("PREDICTION DISTRIBUTION")
+        
+        palette_name = st.selectbox("결과 그래프 색상 테마 선택", list(PIE_CHART_COLORS.keys()), index=0)
+        st.session_state.inference_fig.update_traces(marker=dict(colors=PIE_CHART_COLORS[palette_name]))
+        
         # CSS로 정확히 중앙 정렬
         st.markdown(
             """

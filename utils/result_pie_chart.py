@@ -1,7 +1,7 @@
 import plotly.express as px
 import plotly.graph_objects as go
 
-COLORS = {
+PIE_CHART_COLORS = {
     "Set3": px.colors.qualitative.Set3,     # 12색, 파스텔톤
     "Bold": px.colors.qualitative.Bold,     # 진한 색
     "Pastel": px.colors.qualitative.Pastel, # 은은한 색
@@ -25,7 +25,6 @@ def get_chart_figure(classification):
         insidetextorientation='horizontal',                                                 # 텍스트 고정, 회전 안 됨
         pull=[0.1 if i == sizes.index(max(sizes)) else 0 for i in range(len(sizes))],       # 가장 분류 카운트가 높은 조각을 밖으로 분리
         hovertemplate='%{label}<br>Count: %{value}<br>Percent: %{percent}<extra></extra>',  # 마우스 호버링 시 노출되는 텍스트 템플릿
-        marker=dict(colors=COLORS["Set3"])                                                  # 색상 팔레트 적용
     )])
 
     fig.update_layout(
