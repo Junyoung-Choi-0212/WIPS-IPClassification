@@ -1,5 +1,5 @@
-import plotly.graph_objects as go
 import plotly.express as px
+import plotly.graph_objects as go
 
 COLORS = {
     "Set3": px.colors.qualitative.Set3,     # 12색, 파스텔톤

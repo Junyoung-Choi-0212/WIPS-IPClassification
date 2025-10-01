@@ -1,15 +1,13 @@
-# inference.py
-
 from dotenv import load_dotenv
+from utils import excel_download
 from utils.finetuning_inference import FineTuningInference
 from utils.result_pie_chart import get_chart_figure
-from utils import excel_download
-import os
+
 import glob
+import os
 import streamlit as st
 
-# .env 파일 로드
-load_dotenv()
+load_dotenv() # .env 파일 로드
 
 def show():
     with st.expander("**COLUMNS TO USE FOR INFERENCE**", expanded=True):

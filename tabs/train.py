@@ -1,14 +1,12 @@
-# train.py
-
+from dotenv import load_dotenv
 from utils.data_proceesor import DataProcessor
 from utils.finetuning_trainer import FineTuningTrainer
 from utils.text_chunker import SlidingWindowChunker
+
 import os
 import streamlit as st
-from dotenv import load_dotenv
 
-# .env 파일 로드
-load_dotenv()
+load_dotenv() # .env 파일 로드
 
 def show():
     with st.expander("**COLUMNS TO USE FOR TRAIN**", expanded=True):

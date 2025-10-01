@@ -1,12 +1,10 @@
-# methods/finetuning.py
-
-from tabs import inference, train
-import streamlit as st
-import os
 from dotenv import load_dotenv
+from tabs import inference, train
 
-# .env 파일 로드
-load_dotenv()
+import os
+import streamlit as st
+
+load_dotenv() # .env 파일 로드
 
 def show():
     if st.session_state.uploaded_df is not None:

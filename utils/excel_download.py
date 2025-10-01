@@ -1,10 +1,9 @@
-# excel_download.py
-
 from io import BytesIO
+from openpyxl.drawing.image import Image as XLImage
+
 import pandas as pd
 import streamlit as st
 import time
-from openpyxl.drawing.image import Image as XLImage
 
 def create_pie_chart(writer, fig):
     # 파이차트 이미지 생성

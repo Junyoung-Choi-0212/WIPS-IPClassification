@@ -1,21 +1,19 @@
-# utils/finetuning_trainer.py
-
-import os
-import torch
 from datasets import DatasetDict
-from transformers import AutoTokenizer, AutoModelForSequenceClassification, BitsAndBytesConfig, DataCollatorWithPadding
-from peft import LoraConfig, get_peft_model, prepare_model_for_kbit_training
-from sklearn.metrics import accuracy_score, precision_recall_fscore_support
-import torch.nn.functional as F
-from trl import SFTTrainer, SFTConfig
-import pickle
 from dotenv import load_dotenv
-import tempfile
-import gc
+from peft import get_peft_model, LoraConfig, prepare_model_for_kbit_training
+from sklearn.metrics import accuracy_score, precision_recall_fscore_support
+from transformers import AutoModelForSequenceClassification, AutoTokenizer, BitsAndBytesConfig, DataCollatorWithPadding
+from trl import SFTConfig, SFTTrainer 
 from utils.model_downscaler import create_downscaled_model
 
-# .env 파일 로드
-load_dotenv()
+import gc
+import os
+import pickle
+import tempfile
+import torch
+import torch.nn.functional as F
+
+load_dotenv() # .env 파일 로드
 
 class FineTuningTrainer:
     def __init__(self, model_name="google/gemma-2-2b", hf_token=None):

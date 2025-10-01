@@ -1,8 +1,9 @@
 from components import sidebar
 from dotenv import load_dotenv
 from methods import finetuning, prompt_engineering
-import streamlit as st
+
 import os
+import streamlit as st
 
 load_dotenv()
 

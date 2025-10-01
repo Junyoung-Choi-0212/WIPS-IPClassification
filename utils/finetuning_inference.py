@@ -1,19 +1,17 @@
-# utils/finetuning_inference.py
+from datasets import Dataset
+from dotenv import load_dotenv
+from peft import PeftModel
+from transformers import AutoModelForSequenceClassification, AutoTokenizer, BitsAndBytesConfig
+from utils.data_proceesor import DataProcessor
+from utils.patent_vote import patent_soft_voting
+from utils.text_chunker import SlidingWindowChunker
 
 import os
 import pandas as pd
-import torch
-from datasets import Dataset
-from transformers import AutoTokenizer, AutoModelForSequenceClassification, BitsAndBytesConfig
-from peft import PeftModel
 import pickle
-from dotenv import load_dotenv
-from utils.data_proceesor import DataProcessor
-from utils.text_chunker import SlidingWindowChunker
-from utils.patent_vote import patent_soft_voting
+import torch
 
-# .env 파일 로드
-load_dotenv()
+load_dotenv() # .env 파일 로드
 
 class FineTuningInference:
     def __init__(self, model_name="google/gemma-2-2b", hf_token=None):
