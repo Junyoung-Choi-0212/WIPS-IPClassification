@@ -166,17 +166,17 @@ class FineTuningInference:
             self.model.eval()
             all_predictions = []
 
-            with torch.no_grad():
-                for batch in dataloader:
-                    if next(self.model.parameters()).device.type == 'cuda':
+            with torch.no_grad(): # 역전파 계산 비활성화(추론 시 불필요)
+                for batch in dataloader: # chunking된 DataLoader에서 배치를 하나씩 가져오기
+                    if next(self.model.parameters()).device.type == 'cuda': # 모델이 GPU에 있다면 배치 안의 Tensor들 이동
                         batch = {k: v.cuda() if isinstance(v, torch.Tensor) else v for k, v in batch.items()}
 
-                    outputs = self.model(**batch)
+                    outputs = self.model(**batch) # 모델에 배치를 입력해 결과 얻기
                     logits = outputs.logits
-                    predictions = torch.softmax(logits, dim=-1)
-                    all_predictions.append(predictions.cpu())
+                    predictions = torch.softmax(logits, dim=-1) # 모델이 내놓은 raw 점수를 각 클래스에 대해 softmax 연산으로 확률값 화
+                    all_predictions.append(predictions.cpu()) # 확률을 cpu로 이동 후 리스트에 저장
 
-            probs = torch.cat(all_predictions, dim=0).numpy()
+            probs = torch.cat(all_predictions, dim=0).numpy() # 모든 배치의 결과 concat -> numpy 배열로 변환 => 최종 예측 배열 확률
         except Exception as e:
             import traceback
             print(e)
@@ -189,7 +189,7 @@ class FineTuningInference:
             # -------------------------------
             df_chunked = df_chunked.reset_index(drop=True)
 
-            return pd.DataFrame(patent_soft_voting(df_chunked, probs, self.id2label))
+            return pd.DataFrame(patent_soft_voting(df_chunked, probs, self.id2label)) # 모델의 예측을 기반으로 최종 분류 결정을 위한 voting 진행
         except Exception as e:
             import traceback
             print(e)

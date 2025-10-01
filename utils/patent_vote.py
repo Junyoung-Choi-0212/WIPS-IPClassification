@@ -13,16 +13,16 @@ def patent_soft_voting(dataframe, probs, id2label):
         merged_text = group["text"].str.cat(sep=" ") # 특허 id 기준 텍스트 통합
 
         if len(indices) > 0:
-            label_conf_dict = {label: 0.0 for label in id2label.values()} # 라벨 별 confidence 합산 저장
+            label_conf_dict = {label: 0.0 for label in id2label.values()} # 라벨 별 confidence를 합산 저장할 딕셔너리
             
             print(f"\n [patent_id: {patent_id}]")
             
             for chunk_idx, idx in enumerate(indices):
-                chunk_prob = probs[idx]
+                chunk_prob = probs[idx] # 현재 chunk의 예측 확률 가져오기
                 top_indices = chunk_prob.argsort()[-TOP_N:][::-1] # top-n 라벨 인덱스 (내림차순 정렬)
                 
                 print(f"\n[Chunk {chunk_idx}] Top-{TOP_N} 예측:")
-                for rank, label_idx in enumerate(top_indices, 1):
+                for rank, label_idx in enumerate(top_indices, 1): # 설정한 TOP_N 변수에 맞게 반복하여 딕셔너리에 확률 저장
                     label = id2label[label_idx]
                     conf = float(chunk_prob[label_idx])
 

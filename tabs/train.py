@@ -98,10 +98,10 @@ def show():
                 trainer.initialize_tokenizer()
 
             with st.spinner("PREPROCESSING DATA ..."):
-                processed_df = DataProcessor.prepare_data(trainer, df, selected_cols=selected_cols)
-                chunker = SlidingWindowChunker(trainer.tokenizer)
-                df_chunked = chunker.create_chunked_dataset(processed_df, max_length, stride)
-                tokenized_dataset, test_df = DataProcessor.create_balanced_datasetdict(df_chunked, trainer.tokenizer, test_size=test_size)
+                processed_df = DataProcessor.prepare_data(trainer, df, selected_cols=selected_cols) # 선택한 컬럼 병합 및 결과 라벨 숫자화
+                chunker = SlidingWindowChunker(trainer.tokenizer) # chunking 할 때 사용할 tokenizer 설정
+                df_chunked = chunker.create_chunked_dataset(processed_df, max_length, stride) # 전처리 된 dataframe을 chunking
+                tokenized_dataset, test_df = DataProcessor.create_balanced_datasetdict(df_chunked, trainer.tokenizer, test_size=test_size) # 가장 적은 갯수의 데이터를 보유하고있는 라벨에 맞춰 라벨 별 동일한 수의 데이터 추출 
 
             with st.spinner("CONFIGURING MODEL ..."):
                 bnb_config_params = {'load_in_4bit': load_in_4bit, 'bnb_4bit_quant_type': bnb_4bit_quant_type, 'bnb_4bit_compute_dtype': bnb_4bit_compute_dtype, 'bnb_4bit_use_double_quant': bnb_4bit_use_double_quant}
@@ -121,9 +121,9 @@ def show():
                 eval_results = trainer.train_model(tokenized_dataset, output_dir, lora_config_params, training_config_params)
 
             with st.spinner("SAVING MODEL ..."):
-                trainer.save_model(output_dir)
+                trainer.save_model(output_dir) # 모델 저장
                 
-            try:
+            try: # 테스트 데이터 저장
                 test_save_path = os.path.join(output_dir, "test_data.csv")
                 test_df.to_csv(test_save_path, index=False, encoding="utf-8-sig")
                 st.info(f"Test dataset saved to {test_save_path}")
@@ -133,6 +133,7 @@ def show():
             st.toast("TRAIN COMPLETED")
             st.subheader("TRAIN RESULT")
 
+            # 학습 결과 UI 표시
             col1, col2, col3, col4 = st.columns(4)
             with col1:
                 st.metric("**ACCURACY**", f"{eval_results['eval_accuracy']:.4f}")

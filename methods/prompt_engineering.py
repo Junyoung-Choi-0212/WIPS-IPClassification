@@ -29,6 +29,7 @@ def show():
                     help = "The contents of the selected columns are combined and sent to the prompt."
                 )
                 
+                # 프롬프트에 사용할 컬럼 선택
                 if len(selected_columns) > 1:
                     combine_method = st.selectbox("COLUMN MERGE METHOD", ["SPACE", "LINE BREAKS", "CUSTOM DELIMITER"])
                     
@@ -36,13 +37,11 @@ def show():
                         custom_separator = st.text_input("DELIMITER", value = " | ")
                     else:
                         custom_separator = " " if combine_method == "SPACE" else "\n"
-
                 else:
                     custom_separator = ""
         
         category_settings.show()
         prompt_settings.show(selected_columns, df, custom_separator)
-
     else:
         st.info("⬅️ 특허 문서를 업로드해 주세요.")
     
@@ -51,6 +50,7 @@ def show():
 
         st.subheader("CLASSIFICATION RESULT")
         
+        # 분류 결과 UI 표시
         results = st.session_state.classification_results
         results_df = pd.DataFrame(results)
 
@@ -77,6 +77,7 @@ def show():
         
         st.subheader("PREDICTION DISTRIBUTION")
         
+        # 분류 결과 파이 그래프로 표시
         st.session_state.prompt_fig = get_chart_figure(results_df['classification'])
         
         palette_name = st.selectbox("결과 그래프 색상 테마 선택", list(PIE_CHART_COLORS.keys()), index=0)

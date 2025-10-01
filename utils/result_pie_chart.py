@@ -1,19 +1,20 @@
 import plotly.express as px
 import plotly.graph_objects as go
 
-PIE_CHART_COLORS = {
+PIE_CHART_COLORS = { # 파이그래프 색상 테마 저장 변수
     "Set3": px.colors.qualitative.Set3,     # 12색, 파스텔톤
     "Bold": px.colors.qualitative.Bold,     # 진한 색
     "Pastel": px.colors.qualitative.Pastel, # 은은한 색
     "Dark24": px.colors.qualitative.Dark24, # 24색, 진한 색
 }
 
+# 예측 결과로 파이 그래프 생성 후 반환하는 함수
 def get_chart_figure(classification):
-    value_counts = classification.value_counts()
-    labels = value_counts.index.tolist()
-    sizes = value_counts.values.tolist()
+    value_counts = classification.value_counts() # 결과 dataframe 중 분류 예측 부분을 series로 가져와 빈도수 계산
+    labels = value_counts.index.tolist() # 빈도수 계산 된 label
+    sizes = value_counts.values.tolist() # 빈도수
 
-    # Plotly 파이차트
+    # Plotly 파이 그래프 설정
     fig = go.Figure(data=[go.Pie(
         labels=labels,
         values=sizes,

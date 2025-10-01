@@ -13,6 +13,7 @@ st.title("특허 문서 분류 자동화 플랫폼")
 
 st.markdown("---")
 
+# session_state에서 사용할 값들 초기화
 if "api_url" not in st.session_state:
     st.session_state.api_url = "http://localhost:1234/v1/chat/completions"
 if "api_model" not in st.session_state:
@@ -84,14 +85,15 @@ if 'inference_fig' not in st.session_state:
 
 classification_method = sidebar.show()
 
+# 선택한 분류 방법에 따라 UI 노출
 if classification_method == "PROMPT ENGINEERING":
     prompt_engineering.show()
-
 elif classification_method == "FINE TUNING":
     finetuning.show()
 
 st.markdown("---")
 
+# 팀 이름 UI
 st.markdown(
     """
     <div style = 'text-align : center; color : gray;'>

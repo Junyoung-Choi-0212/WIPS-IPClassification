@@ -4,19 +4,19 @@ import pandas as pd
 
 class DataProcessor:
     @staticmethod
-    def validate_dataframe(df, required_cols=None):
+    def validate_dataframe(df, required_cols=None): # dataframe 검증
         if df is None or len(df) == 0:
             raise ValueError("데이터가 비어 있습니다.")
 
         if required_cols:
-            missing_cols = [col for col in required_cols if col not in df.columns]
+            missing_cols = [col for col in required_cols if col not in df.columns] # dataframe에 필요한 컬럼이 없다면 저장
             if missing_cols:
                 raise ValueError(missing_cols)
 
         return True
 
     @staticmethod
-    def get_available_columns(df, exclude_cols=None):
+    def get_available_columns(df, exclude_cols=None): # 데이터 중 사용 가능한 컬럼 추출
         if exclude_cols is None:
             exclude_cols = ["사용자태그", "WINTELIPS KEY"]
 
@@ -27,7 +27,7 @@ class DataProcessor:
         if selected_cols is None:
             selected_cols = ["발명의 명칭", "요약", "전체청구항"]
 
-        def combine_text(row):
+        def combine_text(row): # 선택한 컬럼 병합
             text_parts = []
             for col in selected_cols:
                 if col in row.index and pd.notna(row.get(col, "")):
@@ -37,7 +37,7 @@ class DataProcessor:
         df_copy = df.copy()
         df_copy["combined_text"] = df_copy.apply(combine_text, axis=1)
 
-        if "사용자태그" in df_copy.columns:
+        if "사용자태그" in df_copy.columns: # 사용자태그 -> id
             executor.labels_list = sorted(df_copy["사용자태그"].unique())
             executor.label2id = {l: i for i, l in enumerate(executor.labels_list)}
             executor.id2label = {i: l for l, i in executor.label2id.items()}

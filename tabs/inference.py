@@ -30,13 +30,13 @@ def show():
             key="model_selection_method"
         )
 
-        if model_selection_method == "MANUAL PATH ENTRY":
+        if model_selection_method == "MANUAL PATH ENTRY": # 모델 경로 직접 입력
             model_path = st.text_input(
                 "병합된 모델의 경로를 입력하세요.",
                 value=os.path.join(st.session_state.default_save_dir, "ft_gemma_2_2b", "merged_model"),
                 help="학습 완료 후 생성된 merged_model 폴더의 전체 경로를 입력하세요."
             )
-        else:
+        else: # 자동 탐색
             base_dir = st.session_state.default_save_dir
 
             if os.path.exists(base_dir):
@@ -74,12 +74,12 @@ def show():
 
         model_exists = False
 
-        if model_path and os.path.exists(model_path):
+        if model_path and os.path.exists(model_path): # 모델 폴더가 존재한다면
             # 병합 모델 파일들 존재 확인
             config_exists = os.path.exists(os.path.join(model_path, 'config.json'))
             model_file_exists = (os.path.exists(os.path.join(model_path, 'pytorch_model.bin')) or os.path.exists(os.path.join(model_path, 'model.safetensors')))
 
-            if config_exists and model_file_exists:
+            if config_exists and model_file_exists: # 모델 config와 모델 파일이 존재한다면
                 model_exists = True
                 st.success("병합된 모델을 사용할 수 있습니다.")
 
@@ -133,6 +133,7 @@ def show():
             st.error(f"추론 중 오류 발생: {e}")
             st.code(str(e))
             
+    # 엑셀 다운로드 버튼 클릭 시 분류 결과 UI가 지워지는것을 방지하기 위해 session_state에 저장해 코드 분리
     if st.session_state.inference_results is not None:
         st.toast("INFERENCE COMPLETED")
         st.subheader("INFERENCE RESULT")
@@ -150,6 +151,7 @@ def show():
     if st.session_state.inference_fig is not None:
         st.subheader("PREDICTION DISTRIBUTION")
         
+        # 분류 결과 파이그래프로 표시
         palette_name = st.selectbox("결과 그래프 색상 테마 선택", list(PIE_CHART_COLORS.keys()), index=0)
         st.session_state.inference_fig.update_traces(marker=dict(colors=PIE_CHART_COLORS[palette_name]))
         

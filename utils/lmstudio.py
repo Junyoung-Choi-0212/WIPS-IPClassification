@@ -49,6 +49,7 @@ def settings():
                 st.error(e)
                 st.session_state.api_connection_success = False
 
+# STEP1 : 설정한 카테고리 별 점수를 모델이 예측
 def get_score_for_candidate(text, code, desc, step1_prompt, api_url, api_model, max_retry=5, retry_delay=1):
     prompt = step1_prompt.format(text = text, code = code, desc = desc)
     
@@ -97,6 +98,7 @@ def get_score_for_candidate(text, code, desc, step1_prompt, api_url, api_model, 
     print("최대 재시도 후에도 숫자 없음, 0.0 반환")
     return 0.0
 
+# STEP2 : STEP1에서 모델이 예측한 점수가 같은 카테고리 후보군 중 모델이 최종 선택을 하게 프롬프트 전달
 def reselect_best_code(text, candidate_codes, candidates, example, step2_prompt, api_url, api_model, max_retry=5, retry_delay=1):
     candidate_text = "\n".join([f"{code} : {candidates[code]}" for code in candidate_codes])
     prompt = step2_prompt.format(text = text, candidate_text = candidate_text, example = example)
@@ -169,7 +171,7 @@ def inference(selected_columns, df, custom_separator, step1_prompt, step2_prompt
                 try:
                     scores = {}
 
-                    for code, desc in candidates.items():
+                    for code, desc in candidates.items(): # 카테고리 별 점수 계산
                         score = get_score_for_candidate(text, code, desc, step1_prompt, st.session_state.api_url, st.session_state.api_model)
                         scores[code] = score
                         time.sleep(0.5)
@@ -206,7 +208,7 @@ def inference(selected_columns, df, custom_separator, step1_prompt, step2_prompt
                         'scores': {}
                     })
                 
-                progress_bar.progress((i + 1) / len(data_to_classify))
+                progress_bar.progress((i + 1) / len(data_to_classify)) # 프로그레스 바 업데이트로 진행상황 UI에 노출
                 time.sleep(1.0)
             
             st.session_state.classification_results = results
