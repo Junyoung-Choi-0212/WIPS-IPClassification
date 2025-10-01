@@ -60,7 +60,6 @@ def create_downscaled_model(hf_token, model_name, tokenizer, labels_list, layer_
             obj_ref = getattr(obj_ref, p)
         setattr(obj_ref, layer_path[-1], new_layers)
 
-        # config 갱신
-        model.config.num_hidden_layers = len(new_layers)
+        model.config.num_hidden_layers = len(new_layers) # config 갱신
         
     return model

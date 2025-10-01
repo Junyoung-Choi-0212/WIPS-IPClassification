@@ -6,9 +6,7 @@ def patent_soft_voting(dataframe, probs, id2label):
     print(dataframe.head(5))
     
     patent_results = []
-
-    # 특허 단위로 그룹화
-    for patent_id, group in dataframe.groupby('patent_id'):
+    for patent_id, group in dataframe.groupby('patent_id'): # 특허 단위로 그룹화
         indices = group.index.tolist()
         group = group.copy()
         
@@ -21,9 +19,7 @@ def patent_soft_voting(dataframe, probs, id2label):
             
             for chunk_idx, idx in enumerate(indices):
                 chunk_prob = probs[idx]
-                
-                # top-n 라벨 인덱스 (내림차순 정렬)
-                top_indices = chunk_prob.argsort()[-TOP_N:][::-1]
+                top_indices = chunk_prob.argsort()[-TOP_N:][::-1] # top-n 라벨 인덱스 (내림차순 정렬)
                 
                 print(f"\n[Chunk {chunk_idx}] Top-{TOP_N} 예측:")
                 for rank, label_idx in enumerate(top_indices, 1):
@@ -32,13 +28,11 @@ def patent_soft_voting(dataframe, probs, id2label):
 
                     print(f"  {rank}. {label} (conf={conf:.4f})")
                     
-                    # confidence 누적
-                    label_conf_dict[label] += conf
+                    label_conf_dict[label] += conf # confidence 누적
                 
-            # 최종 결과: confidence 합이 가장 큰 라벨(soft voting) 선택
-            pred_label = max(label_conf_dict, key=label_conf_dict.get)
+            pred_label = max(label_conf_dict, key=label_conf_dict.get) # 최종 결과: confidence 합이 가장 큰 라벨(soft voting) 선택
             
-            # 신뢰도 합 정규화
+            # 신뢰도 합 정규화(신뢰도 합이 0일 경우 예외처리)
             total_conf = sum(label_conf_dict.values())
             if total_conf == 0:
                 n_labels = len(label_conf_dict)
@@ -49,7 +43,7 @@ def patent_soft_voting(dataframe, probs, id2label):
             else:
                 label_conf_norm = {label: conf / total_conf for label, conf in label_conf_dict.items()}
             
-            pred_conf = round(label_conf_norm[pred_label], 4)
+            pred_conf = round(label_conf_norm[pred_label], 4) # 소숫점 4자리까지 반올림
 
             print("\nChunk 별 confidence 합산 결과:")
             for label, conf_sum in sorted(label_conf_dict.items(), key=lambda x: x[1], reverse=True):

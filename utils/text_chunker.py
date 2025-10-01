@@ -31,10 +31,7 @@ class SlidingWindowChunker:
             chunks = self.chunk_text(row["text"], max_length, stride)
 
             for chunk in chunks:
-                chunk_row = {
-                    "text": chunk,
-                    "patent_id": row["patent_id"]
-                }
+                chunk_row = {"text": chunk, "patent_id": row["patent_id"]}
                 
                 if "label" in row:
                     chunk_row["label"] = row["label"]
