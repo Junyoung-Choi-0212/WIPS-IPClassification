@@ -101,8 +101,6 @@ def show(selected_columns, df, custom_separator):
     lmstudio.settings()
 
     if selected_columns and len(st.session_state.categories) > 0:
-        lmstudio.inference(selected_columns, df, custom_separator, 
-                          st.session_state.step1_prompt, st.session_state.step2_prompt, 
-                          st.session_state.categories)
+        lmstudio.inference(selected_columns, df, custom_separator, st.session_state.step1_prompt, st.session_state.step2_prompt, st.session_state.categories)
     else:
         st.warning("Please select at least one column and one category.")

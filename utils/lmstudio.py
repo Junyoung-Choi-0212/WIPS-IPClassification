@@ -9,28 +9,18 @@ def settings():
         col_api1, col_api2 = st.columns(2)
 
         with col_api1:
-            api_url_input = st.text_input(
-                "BASE URL", 
-                value = st.session_state.get("api_url", "http://localhost:1234/v1/chat/completions")
-            )
+            api_url_input = st.text_input("BASE URL", value = st.session_state.get("api_url", "http://localhost:1234/v1/chat/completions"))
             st.session_state.api_url = api_url_input
             
         with col_api2:
-            api_model_input = st.text_input(
-                "MODEL", 
-                value = st.session_state.get("api_model", "qwen/qwen3-14b")
-            )
+            api_model_input = st.text_input("MODEL", value = st.session_state.get("api_model", "qwen/qwen3-14b"))
             st.session_state.api_model = api_model_input
 
         if st.button("API CONNECTION"):
             try:
                 test_response = requests.post(
                     st.session_state.api_url,
-                    json = {
-                        "model": st.session_state.api_model,
-                        "messages": [{"role": "user", "content": "Hello"}],
-                        "max_tokens": 10
-                    },
+                    json = {"model": st.session_state.api_model, "messages": [{"role": "user", "content": "Hello"}], "max_tokens": 10},
                     timeout = 30
                 )
 
@@ -81,7 +71,6 @@ def get_score_for_candidate(text, code, desc, step1_prompt, api_url, api_model, 
             if response.status_code == 200:
                 result = response.json()
                 score_text = result['choices'][0]['message']['content'].strip()
-                # print(f"prompt engineering > score_text before : {score_text}")
 
                 # 숫자 추출
                 match = re.search(r"\b([0-9](\.[0-9])?|10(\.0)?)\b", score_text)
@@ -96,24 +85,21 @@ def get_score_for_candidate(text, code, desc, step1_prompt, api_url, api_model, 
                         return score  # 정상 숫자면 바로 반환
                 else:
                     print(f"숫자를 찾지 못함, 재시도 {attempt+1}")
-                    
             else:
                 print(f"API 상태 코드 {response.status_code}, 재시도 {attempt+1}")
 
         except Exception as e:
             print(f"예외 발생: {e}, 재시도 {attempt+1}")
 
-        # 재시도 전 딜레이
-        time.sleep(retry_delay)
+        time.sleep(retry_delay) # 재시도 전 딜레이
 
     # 최대 재시도 후에도 숫자 못 받으면 0.0
-    print("❌ 최대 재시도 후에도 숫자 없음, 0.0 반환")
+    print("최대 재시도 후에도 숫자 없음, 0.0 반환")
     return 0.0
 
 def reselect_best_code(text, candidate_codes, candidates, example, step2_prompt, api_url, api_model, max_retry=5, retry_delay=1):
     candidate_text = "\n".join([f"{code} : {candidates[code]}" for code in candidate_codes])
     prompt = step2_prompt.format(text = text, candidate_text = candidate_text, example = example)
-    # print(f"reselect prompt : {prompt}")
     
     for attempt in range(max_retry):
         try:
@@ -134,7 +120,6 @@ def reselect_best_code(text, candidate_codes, candidates, example, step2_prompt,
             if response.status_code == 200:
                 result = response.json()
                 final_choice = result['choices'][0]['message']['content'].strip()
-                # print(f"final (attempt {attempt+1}): {final_choice}")
 
                 # 후보 코드 중 하나가 포함되어 있으면 바로 반환
                 for code in candidate_codes:
@@ -151,8 +136,7 @@ def reselect_best_code(text, candidate_codes, candidates, example, step2_prompt,
 
         time.sleep(retry_delay)
 
-    # 최대 재시도 후에도 후보 코드가 없으면 ERROR 반환
-    print("최대 재시도 후에도 후보 코드 선택 실패")
+    print("최대 재시도 후에도 후보 코드 선택 실패") # 최대 재시도 후에도 후보 코드가 없으면 ERROR 반환
     return "ERROR"
 
 def inference(selected_columns, df, custom_separator, step1_prompt, step2_prompt, candidates):
@@ -166,15 +150,11 @@ def inference(selected_columns, df, custom_separator, step1_prompt, step2_prompt
             return
         
         with st.spinner("CLASSIFICATION IN PROGRESS ..."):
-            if len(selected_columns) == 1:
+            if len(selected_columns) == 1: # 분류에 사용할 컬럼이 한 개 라면
                 data_to_classify = df[selected_columns[0]].dropna().astype(str).tolist()
-                
-            else:
+            else: # 분류에 사용할 컬럼이 여러 개 라면
                 clean_df = df[selected_columns].dropna()
-                data_to_classify = clean_df.apply(
-                    lambda row: custom_separator.join([str(row[col]) for col in selected_columns]),
-                    axis = 1
-                ).tolist()
+                data_to_classify = clean_df.apply(lambda row: custom_separator.join([str(row[col]) for col in selected_columns]), axis = 1).tolist()
 
             data_to_classify = [text for text in data_to_classify if text.strip()]
             
@@ -185,7 +165,6 @@ def inference(selected_columns, df, custom_separator, step1_prompt, step2_prompt
             results = []
 
             progress_bar = st.progress(0)
-            
             for i, text in enumerate(data_to_classify):
                 try:
                     scores = {}
@@ -201,14 +180,12 @@ def inference(selected_columns, df, custom_separator, step1_prompt, step2_prompt
                         max_score = max(scores.values())
                         candidates_with_max_score = [code for code, s in scores.items() if s == max_score]
 
-                        if len(candidates_with_max_score) == 1:
+                        if len(candidates_with_max_score) == 1: # 가장 높은 점수인 분류가 하나만 있다면 해당 분류로 최종 결정
                             classification = candidates_with_max_score[0]
-
-                        else:
+                        else: # 가장 높은 점수인 분류가 여러 개 있다면 다시 선택하는 프롬프트 실행
                             classification = reselect_best_code(text, candidates_with_max_score, candidates, next(iter(st.session_state.categories)), step2_prompt, st.session_state.api_url, st.session_state.api_model)
                             time.sleep(0.5)
-
-                    else:
+                    else: # 분류 예측 점수 값을 받아오지 못했다면 에러 return
                         classification = "ERROR"
 
                     results.append({
@@ -218,8 +195,7 @@ def inference(selected_columns, df, custom_separator, step1_prompt, step2_prompt
                         'text_preview': text[:100] + "..." if len(text) > 100 else text,
                         'scores': scores
                     })
-                        
-                except Exception as e:
+                except Exception:
                     print(f"Error at index {i} with text: {text[:50]}...")
                     traceback.print_exc()
                     results.append({
@@ -231,7 +207,6 @@ def inference(selected_columns, df, custom_separator, step1_prompt, step2_prompt
                     })
                 
                 progress_bar.progress((i + 1) / len(data_to_classify))
-
                 time.sleep(1.0)
             
             st.session_state.classification_results = results

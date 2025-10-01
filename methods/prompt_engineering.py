@@ -29,10 +29,7 @@ def show():
                 )
                 
                 if len(selected_columns) > 1:
-                    combine_method = st.selectbox(
-                        "COLUMN MERGE METHOD",
-                        ["SPACE", "LINE BREAKS", "CUSTOM DELIMITER"]
-                    )
+                    combine_method = st.selectbox("COLUMN MERGE METHOD", ["SPACE", "LINE BREAKS", "CUSTOM DELIMITER"])
                     
                     if combine_method == "CUSTOM DELIMITER":
                         custom_separator = st.text_input("DELIMITER", value = " | ")
