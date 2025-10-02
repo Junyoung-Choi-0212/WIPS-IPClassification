@@ -70,7 +70,7 @@ def create_balanced_datasetdict(df_chunked, tokenizer, test_size=0.2, random_sta
         train_dfs.append(train_data)
         test_dfs.append(test_data)
 
-    # 합치기
+    # 라벨 마다 모은 데이터를 Dataframe으로 합치며 전체 행을 random_state에 따라 100%(frac) 섞는다.
     train_df = pd.concat(train_dfs, ignore_index=True).sample(frac=1, random_state=random_state)
     test_df = pd.concat(test_dfs, ignore_index=True).sample(frac=1, random_state=random_state)
 
