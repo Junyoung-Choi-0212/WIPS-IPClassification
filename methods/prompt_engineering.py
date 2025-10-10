@@ -18,7 +18,7 @@ def show():
                 st.write("**DATA PREVIEW**")
                 df = df.reset_index(drop=True)
                 df.index = df.index + 1    # index가 1부터 시작하도록 변경
-                st.dataframe(df.head(), use_container_width = True)
+                st.dataframe(df.head(), width = 'stretch')
                 st.metric("**TOTAL ROWS**", len(df))
                 
             with col2:
@@ -73,7 +73,7 @@ def show():
                 display_df.columns = ['TEXT PREVIEW', 'CLASSIFICATION']
                 display_df = display_df.reset_index(drop=True)
                 display_df.index = display_df.index + 1    # index가 1부터 시작하도록 변경
-                st.dataframe(display_df, use_container_width = True)
+                st.dataframe(display_df, width = 'stretch')
         
         st.subheader("PREDICTION DISTRIBUTION")
         
@@ -91,7 +91,7 @@ def show():
             """, 
             unsafe_allow_html=True
         )
-        st.plotly_chart(st.session_state.prompt_fig, use_container_width=True)
+        st.plotly_chart(st.session_state.prompt_fig, width='stretch')
         st.markdown("</div></div>", unsafe_allow_html=True)
 
         excel_download.show_promptengineering(results_df, classification_groups)

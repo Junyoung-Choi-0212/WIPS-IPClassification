@@ -114,7 +114,7 @@ def show():
             with col2:
                 chunk_stride = st.number_input("STRIDE", min_value=10, max_value=100, value=50, key="chunk_stride")
 
-    if st.button("**I N F E R E N C E**", type="primary", use_container_width=True, disabled=not model_exists):
+    if st.button("**I N F E R E N C E**", type="primary", width='stretch', disabled=not model_exists):
         try:
             model_name = st.session_state.get('ft_model_name', 'google/gemma-2-2b')
             hf_token = st.session_state.get('ft_hf_token') or os.getenv('HF_TOKEN')
@@ -146,7 +146,7 @@ def show():
                 display_df.columns = ['PATENT ID', 'TEXT PREVIEW', 'CLASSIFICATION', 'CONFIDENCE']
                 display_df = display_df.reset_index(drop=True)
                 display_df.index = display_df.index + 1    # index가 1부터 시작하도록 변경
-                st.dataframe(display_df, use_container_width = True)
+                st.dataframe(display_df, width = 'stretch')
                 
     if st.session_state.inference_fig is not None:
         st.subheader("PREDICTION DISTRIBUTION")
@@ -163,7 +163,7 @@ def show():
             """, 
             unsafe_allow_html=True
         )
-        st.plotly_chart(st.session_state.inference_fig, use_container_width=True)
+        st.plotly_chart(st.session_state.inference_fig, width='stretch')
         st.markdown("</div></div>", unsafe_allow_html=True)
 
-        excel_download.show_finetuning(st.session_state.inference_results)   
+        excel_download.show_finetuning(st.session_state.inference_results)

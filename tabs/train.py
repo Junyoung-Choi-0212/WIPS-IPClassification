@@ -87,7 +87,7 @@ def show():
         os.makedirs(model_dir, exist_ok=True) # 경로가 없을 경우 생성
         output_dir = os.path.join(model_dir, model_name_input)
 
-    if st.button("**T R A I N**", type="primary", use_container_width=True):
+    if st.button("**T R A I N**", type="primary", width='stretch'):
         try:
             model_name = st.session_state.get('ft_model_name', 'google/gemma-2-2b')
             hf_token = st.session_state.get('ft_hf_token') or os.getenv('HF_TOKEN')

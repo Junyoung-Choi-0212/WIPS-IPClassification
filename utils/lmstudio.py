@@ -146,7 +146,7 @@ def inference(selected_columns, df, custom_separator, step1_prompt, step2_prompt
         st.warning("Please complete API CONNECTION first.")
         return
 
-    if st.button("**C L A S S I F Y**", type = "primary", use_container_width = True):
+    if st.button("**C L A S S I F Y**", type = "primary", width = 'stretch'):
         if not hasattr(st.session_state, 'api_url') or not hasattr(st.session_state, 'api_model'):
             st.error("Please set up the LM STUDIO API first.")
             return
