@@ -5,6 +5,22 @@ from methods import finetuning, prompt_engineering
 import os
 import streamlit as st
 
+# --- TEMP/TMP 경로를 현재 코드 드라이브로 자동 설정 ---
+try:
+    root_drive = os.path.splitdrive(os.path.abspath(__file__))[0]  # 예: 'D:'
+except NameError:
+    # Streamlit이나 인터랙티브 환경에서 __file__이 없을 경우 대비
+    root_drive = os.getcwd().split(":")[0] + ":"  # 예: 'D:'
+
+temp_dir = os.path.join(root_drive, "Temp")
+os.makedirs(temp_dir, exist_ok=True)
+
+os.environ["TEMP"] = temp_dir
+os.environ["TMP"] = temp_dir
+
+print(f"[INFO] TEMP/TMP set to: {temp_dir}")
+# ------------------------------------------------------
+
 load_dotenv()
 
 st.set_page_config(page_title = "특허 문서 분류 자동화 플랫폼", layout = "wide", menu_items = {})
