@@ -45,7 +45,7 @@ def create_downscaled_model(hf_token, model_name, tokenizer, labels_list, layer_
     else:
         # 전체 레이어 중에서 중앙 레이어를 제외하고,
         # 하위(lower_n)와 상위(upper_m) 레이어만 선택하여 새 레이어 스택 구성
-        # 사용할 레이어의 갯수가 짝수라면, 데이터 인식에 초점을 두도록 하위 레이어를 하나 더 많게 조절
+        # 사용할 레이어의 갯수가 홀수라면, 데이터 인식에 초점을 두도록 하위 레이어를 하나 더 많게 조절
         if downscaled_layers % 2 == 0:
             lower_n = int(downscaled_layers / 2)
         else:

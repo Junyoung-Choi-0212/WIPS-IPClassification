@@ -173,7 +173,7 @@ class FineTuningInference:
 
                     outputs = self.model(**batch) # 모델에 배치를 입력해 결과 얻기
                     logits = outputs.logits
-                    predictions = torch.softmax(logits, dim=-1) # 모델이 내놓은 raw 점수를 각 클래스에 대해 softmax 연산으로 확률값 화
+                    predictions = torch.softmax(logits, dim=-1) # 모델이 내놓은 raw 점수를 각 클래스에 대해 softmax 연산으로 확률값화
                     all_predictions.append(predictions.cpu()) # 확률을 cpu로 이동 후 리스트에 저장
 
             probs = torch.cat(all_predictions, dim=0).numpy() # 모든 배치의 결과 concat -> numpy 배열로 변환 => 최종 예측 배열 확률

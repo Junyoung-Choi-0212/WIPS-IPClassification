@@ -167,7 +167,7 @@ class FineTuningTrainer:
         self.trainer.train()
 
         os.makedirs(output_dir, exist_ok=True)
-        with open(os.path.join(output_dir, 'label_mappings.pkl'), 'wb') as f:
+        with open(os.path.join(output_dir, 'label_mappings.pkl'), 'wb') as f: # 라벨 정보 저장(추론 과정에서 필요)
             pickle.dump({'labels_list': self.labels_list, 'label2id': self.label2id, 'id2label': self.id2label}, f)
 
         return self.trainer.evaluate()
