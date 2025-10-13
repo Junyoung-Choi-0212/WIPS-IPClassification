@@ -122,12 +122,12 @@ streamlit run app.py
 |---------------------------|------------|----------------------------|
 | bitsandbytes              | v0.48.0.dev0  | LLM 모델 양자화 세팅      |
 | peft                      | v0.17.1       | LoRA 학습 설정           |
-| transformers              | v4.56.0       | LLM 모델 로딩 등         |
-| scikit-learn              | v1.7.1        | 모델 eval 결과 추출      |
 | plotly                    | v6.3.0        | 분류 결과 파이그래프 생성  |
-| python-dotenv             | v1.1.1        | API 키 및 환경 변수 관리  |
 | Python                    | v3.12.11      | 전체 백엔드 및 LLM 처리   |
+| python-dotenv             | v1.1.1        | API 키 및 환경 변수 관리  |
+| scikit-learn              | v1.7.1        | 모델 eval 결과 추출      |
 | Streamlit                 | v1.49.1       | 사용자 인터페이스 구성    |
+| transformers              | v4.56.0       | LLM 모델 로딩 등         |
 
 ## 참고 도서
 - Hands-On Machine Learning with Scikit-Learn, Keras & TensorFlow(2판)
