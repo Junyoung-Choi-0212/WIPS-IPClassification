@@ -21,6 +21,14 @@ def create_pie_chart(writer, fig):
     
     worksheet.add_image(xl_img, "D2") # D2 셀에 파이 차트 이미지 삽입
 
+def create_download_btn(label, buffer, file_name):
+    st.download_button(
+        label = label,
+        data = buffer.getvalue(),
+        file_name = file_name,
+        mime = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+
 def show_promptengineering(results_df, classification_groups):
     download_df = results_df[['text', 'classification']].copy()
     download_df.columns = ['TEXT', 'CLASSIFICATION']
@@ -44,12 +52,7 @@ def show_promptengineering(results_df, classification_groups):
 
     excel_buffer.seek(0)
 
-    st.download_button(
-        label = "✔️ DOWNLOAD PROMPT ENGINEERING RESULT (EXCEL)",
-        data = excel_buffer.getvalue(),
-        file_name = f"patent_classification_prompt_{int(time.time())}.xlsx",
-        mime = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    )
+    create_download_btn("✔️ DOWNLOAD PROMPT ENGINEERING RESULT (EXCEL)", excel_buffer, f"patent_classification_prompt_{int(time.time())}.xlsx")
 
 def show_finetuning(results_df):
     if results_df is None or len(results_df) == 0:
@@ -85,9 +88,4 @@ def show_finetuning(results_df):
 
     excel_buffer.seek(0)
 
-    st.download_button(
-        label = "✔️ DOWNLOAD FINE TUNING RESULT (EXCEL)",
-        data = excel_buffer.getvalue(),
-        file_name = f"patent_classification_finetuning_{int(time.time())}.xlsx",
-        mime = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    )
+    create_download_btn("✔️ DOWNLOAD FINE TUNING RESULT (EXCEL)", excel_buffer, f"patent_classification_finetuning_{int(time.time())}.xlsx")
