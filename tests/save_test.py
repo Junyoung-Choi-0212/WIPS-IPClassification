@@ -43,7 +43,7 @@ model = get_peft_model(model, peft_config)
 
 torch.cuda.empty_cache()
 
-df = pd.read_excel("./data/test.xlsx")
+df = pd.read_excel("../data/test.xlsx")
 dataset = Dataset.from_pandas(df)
 
 label_list = df["사용자태그"].unique().tolist()
@@ -79,7 +79,7 @@ def compute_metrics(pred):
     }
 
 default_training_args = {
-    'output_dir': './adapter_test',
+    'output_dir': '../adapter_test',
     'learning_rate': 2e-5,
     'per_device_train_batch_size': 2,
     'per_device_eval_batch_size': 2,
@@ -115,4 +115,4 @@ trainer = SFTTrainer(
 trainer.train()
 trainer.evaluate()
 
-trainer.model.save_pretrained("./adapter")
+trainer.model.save_pretrained("../adapter")

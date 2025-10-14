@@ -13,13 +13,13 @@ load_dotenv()
 
 hf_token = os.getenv('HF_TOKEN')
 
-peft_config = PeftConfig.from_pretrained("./adapter")
+peft_config = PeftConfig.from_pretrained("../adapter")
 
 bnb_config_params = {'load_in_4bit': True, 'bnb_4bit_quant_type': 'nf4', 'bnb_4bit_compute_dtype': torch.float16, 'bnb_4bit_use_double_quant': True}
 bnb_config = BitsAndBytesConfig(**bnb_config_params)
 
 # 테스트 데이터
-df = pd.read_excel("./data/test.xlsx")
+df = pd.read_excel("../data/test.xlsx")
 dataset = Dataset.from_pandas(df)
 
 label_list = df["사용자태그"].unique().tolist()
@@ -31,7 +31,7 @@ model = AutoModelForSequenceClassification.from_pretrained(peft_config.base_mode
 tokenizer = AutoTokenizer.from_pretrained( peft_config.base_model_name_or_path )
 tokenizer.pad_token = tokenizer.eos_token
 tokenizer.padding_side = 'right'
-peft_model = PeftModel.from_pretrained(model, "./adapter", torch_dtype=torch.bfloat16) 
+peft_model = PeftModel.from_pretrained(model, "../adapter", torch_dtype=torch.bfloat16) 
 inference_model = peft_model
 
 def preprocess_function(examples):
