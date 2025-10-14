@@ -67,9 +67,6 @@ for i, batch in enumerate(test_loader):
     
     all_preds.extend(preds.cpu().numpy())
     all_labels.extend(batch["labels"].numpy())
-    
-    start_idx = i * 8
-    end_idx = start_idx + len(batch["input_ids"])
-    all_ids.extend(tokenized_test[start_idx:end_idx]["출원번호"])
+    all_ids.append(tokenized_test[i]["출원번호"])
         
 print(classification_report(all_labels, all_preds, target_names=label_list))
