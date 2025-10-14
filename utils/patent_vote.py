@@ -1,6 +1,6 @@
 TOP_N = 3  # 각 chunk에서 예측 결과 상위 n개 라벨의 confidence만 합산
 
-# patent_id(출원번호) 별 chunk의 예측 확률 중 상위 [TOP_N]개를 합산한 후 정규화를 통한 신뢰도 계산 
+# patent_id(출원번호) 별 chunk의 예측 확률 중 상위 [TOP_N]개를 합산한 후 확률이 가장 높은 분류를 선택
 def patent_soft_voting(dataframe, probs, id2label):
     print("[inference dataset]")
     print(dataframe.head(5))
@@ -28,35 +28,21 @@ def patent_soft_voting(dataframe, probs, id2label):
 
                     print(f"  {rank}. {label} (conf={conf:.4f})")
                     
-                    label_conf_dict[label] += conf # confidence 누적
+                    label_conf_dict[label] += conf # confidence 누적(※ confidence 값은 최종 분류를 선택하기 위해서만 사용 ※)
                 
             pred_label = max(label_conf_dict, key=label_conf_dict.get) # 최종 결과: confidence 합이 가장 큰 라벨(soft voting) 선택
-            
-            # 신뢰도 합 정규화(신뢰도 합이 0일 경우 예외처리)
-            total_conf = sum(label_conf_dict.values())
-            if total_conf == 0:
-                n_labels = len(label_conf_dict)
-                if n_labels > 0:
-                    label_conf_norm = {label: 1 / n_labels for label in label_conf_dict}
-                else:
-                    label_conf_norm = {}
-            else:
-                label_conf_norm = {label: conf / total_conf for label, conf in label_conf_dict.items()}
-            
-            pred_conf = round(label_conf_norm[pred_label], 4) # 소숫점 4자리까지 반올림
 
             print("\nChunk 별 confidence 합산 결과:")
             for label, conf_sum in sorted(label_conf_dict.items(), key=lambda x: x[1], reverse=True):
                 print(f"   {label}: {round(conf_sum,4)}")
 
-            print(f"=> 최종 예측: {pred_label} (confidence 총합: {round(sorted(label_conf_dict.items(), key=lambda x: x[1], reverse=True)[0][1], 4)}, 신뢰도(confidence 정규화): {pred_conf})\n")
+            print(f"=> 최종 예측: {pred_label}\n")
 
             patent_results.append({
                 "patent_id": patent_id,
                 "text": merged_text,
                 "text_preview": merged_text[:100] + "..." if len(merged_text) > 100 else merged_text,
-                "classification": pred_label,
-                "confidence": pred_conf
+                "classification": pred_label
             })
     
     return patent_results

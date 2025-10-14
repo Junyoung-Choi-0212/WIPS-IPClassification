@@ -142,8 +142,8 @@ def show():
         
         for category, group in classification_groups:
             with st.expander(f"**{category} ({len(group)}건)**", expanded = False):
-                display_df = group[['patent_id', 'text_preview', 'classification', 'confidence']].copy()
-                display_df.columns = ['PATENT ID', 'TEXT PREVIEW', 'CLASSIFICATION', 'CONFIDENCE']
+                display_df = group[['patent_id', 'text_preview', 'classification']].copy()
+                display_df.columns = ['PATENT ID', 'TEXT PREVIEW', 'CLASSIFICATION']
                 display_df = display_df.reset_index(drop=True)
                 display_df.index = display_df.index + 1    # index가 1부터 시작하도록 변경
                 st.dataframe(display_df, width = 'stretch')

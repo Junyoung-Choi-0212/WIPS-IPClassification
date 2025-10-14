@@ -194,8 +194,7 @@ def inference(selected_columns, df, custom_separator, step1_prompt, step2_prompt
                         'index': i,
                         'text': text,
                         'classification': classification,
-                        'text_preview': text[:100] + "..." if len(text) > 100 else text,
-                        'scores': scores
+                        'text_preview': text[:100] + "..." if len(text) > 100 else text
                     })
                 except Exception:
                     print(f"Error at index {i} with text: {text[:50]}...")
@@ -204,8 +203,7 @@ def inference(selected_columns, df, custom_separator, step1_prompt, step2_prompt
                         'index': i,
                         'text': text,
                         'classification': "ERROR",
-                        'text_preview': text[:100] + "..." if len(text) > 100 else text,
-                        'scores': {}
+                        'text_preview': text[:100] + "..." if len(text) > 100 else text
                     })
                 
                 progress_bar.progress((i + 1) / len(data_to_classify)) # 프로그레스 바 업데이트로 진행상황 UI에 노출

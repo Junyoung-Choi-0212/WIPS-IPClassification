@@ -59,8 +59,8 @@ def show_finetuning(results_df):
         st.warning("다운로드할 결과가 없습니다.")
         return
         
-    download_df = results_df[["patent_id", "text", "classification", "confidence"]].copy()
-    download_df.columns = ['PATENT ID', 'TEXT', 'CLASSIFICATION', 'CONFIDENCE']
+    download_df = results_df[["patent_id", "text", "classification"]].copy()
+    download_df.columns = ['PATENT ID', 'TEXT', 'CLASSIFICATION']
     
     excel_buffer = BytesIO()
     with pd.ExcelWriter(excel_buffer, engine = 'openpyxl') as writer:
@@ -79,12 +79,6 @@ def show_finetuning(results_df):
         
             if st.session_state.inference_fig is not None:
                 create_pie_chart(writer, st.session_state.inference_fig)
-        
-        if 'CONFIDENCE' in download_df.columns:
-            confidence_ranges = pd.cut(download_df['CONFIDENCE'], bins = [0, 0.5, 0.7, 0.85, 1.0], labels = ['LOW (0-0.5)', 'MEDIUM (0.5-0.7)', 'HIGH (0.7-0.85)', 'VERY HIGH (0.85-1.0)'])
-            confidence_stats = confidence_ranges.value_counts().reset_index()
-            confidence_stats.columns = ['신뢰도_구간', '개수']
-            confidence_stats.to_excel(writer, sheet_name = '신뢰도_분석', index = False)
 
     excel_buffer.seek(0)
 
