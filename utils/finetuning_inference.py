@@ -1,6 +1,7 @@
 from datasets import Dataset
 from dotenv import load_dotenv
-from peft import PeftModel
+from pathlib import Path
+from peft import PeftConfig, PeftModel
 from transformers import AutoModelForSequenceClassification, AutoTokenizer, BitsAndBytesConfig
 from utils.data_proceesor import prepare_data
 from utils.patent_vote import patent_soft_voting
@@ -78,20 +79,12 @@ class FineTuningInference:
                 )
                 print("병합된 모델을 로드했습니다.")
             else:
-                # 기존 방식 (베이스 모델 + 어댑터)
-                bnb_config = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_quant_type='nf4', bnb_4bit_compute_dtype='float16', bnb_4bit_use_double_quant=True)
+                # 베이스 모델 + 어댑터
+                bnb_config = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_quant_type='nf4', bnb_4bit_compute_dtype=torch.float16, bnb_4bit_use_double_quant=True)
+                model = AutoModelForSequenceClassification.from_pretrained(self.model_name, quantization_config=bnb_config, device_map="auto", torch_dtype=torch.float16, num_labels = len(self.labels_list))
 
-                # 베이스 모델을 SEQ_CLS로 로드
-                base_model = AutoModelForSequenceClassification.from_pretrained(
-                    self.model_name,
-                    token=self.hf_token,
-                    num_labels=len(self.labels_list),
-                    device_map='auto',
-                    quantization_config=bnb_config,
-                    trust_remote_code=True
-                )
-
-                self.model = PeftModel.from_pretrained(base_model, model_path, device_map='auto') # 어댑터 로드 및 병합
+                adapter_path = Path(model_path).resolve()
+                self.model = PeftModel.from_pretrained(model, str(adapter_path), device_map='auto', local_files_only=True) # 어댑터 로드 및 병합
                 self.model = self.model.merge_and_unload() # 병합
                 print("어댑터를 병합하여 로드했습니다.")
 

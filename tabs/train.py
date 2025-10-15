@@ -81,6 +81,7 @@ def show():
             stride = st.number_input("STRIDE", min_value=10, max_value=100, value=50)
             
     with st.expander("**MODEL SAVE PATH**", expanded = False):
+        save_option = st.radio("SAVE METHOD", ["Merged model", "Only adapter"], horizontal=True)
         model_dir = st.text_input("OUTPUT DIR", value = st.session_state.default_save_dir)
         
         model_name_input = st.text_input("MODEL NAME", value="ft_gemma_2_2b")
@@ -121,7 +122,8 @@ def show():
                 eval_results = trainer.train_model(tokenized_dataset, output_dir, lora_config_params, training_config_params)
 
             with st.spinner("SAVING MODEL ..."):
-                trainer.save_model(output_dir) # 모델 저장
+                merge_adapter = save_option == "Merged model" # merged model을 선택하면 True, 그 외 False
+                trainer.save_model(output_dir, merge_adapter) # 모델 저장
                 
             try: # 테스트 데이터 저장
                 test_save_path = os.path.join(output_dir, "test_data.csv")

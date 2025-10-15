@@ -34,15 +34,15 @@ def show():
             model_path = st.text_input(
                 "병합된 모델의 경로를 입력하세요.",
                 value=os.path.join(st.session_state.default_save_dir, "ft_gemma_2_2b", "merged_model"),
-                help="학습 완료 후 생성된 merged_model 폴더의 전체 경로를 입력하세요."
+                help="학습 완료 후 생성된 폴더의 전체 경로를 입력하세요."
             )
         else: # 자동 탐색
             base_dir = st.session_state.default_save_dir
 
             if os.path.exists(base_dir):
                 try:
-                    # merged_model 폴더 검색
-                    merged_model_paths = glob.glob(os.path.join(base_dir, "*", "merged_model"))
+                    merged_model_paths = glob.glob(os.path.join(base_dir, "*", "merged_model")) # merged_model 폴더 검색
+                    adapter_paths = glob.glob(os.path.join(base_dir, "*")) # 어댑터 폴더 검색
 
                     valid_models = []
                     for merged_path in merged_model_paths:
@@ -53,6 +53,13 @@ def show():
                             # 상위 폴더 이름으로 표시
                             parent_dir = os.path.basename(os.path.dirname(merged_path))
                             valid_models.append((parent_dir, merged_path))
+                    for adapter_path in adapter_paths:
+                        # adapter_config.json 또는 adapter_model.safetensors 파일 존재 확인
+                        if (os.path.exists(os.path.join(adapter_path, 'adapter_config.json')) or
+                            os.path.exists(os.path.join(adapter_path, 'adapter_model.bin')) or
+                            os.path.exists(os.path.join(adapter_path, 'adapter_model.safetensors'))):
+                            model_name = os.path.basename(adapter_path)  # 자기 폴더명이 곧 모델 이름
+                            valid_models.append((model_name, adapter_path))
 
                     if valid_models:
                         # 사용자에게 보여줄 이름과 실제 경로 분리
@@ -64,35 +71,37 @@ def show():
                         st.info(f"선택된 모델 경로: {model_path}")
                     else:
                         st.warning("No merged model could be found using automatic search.")
-                        model_path = st.text_input("병합된 모델의 경로를 직접 입력하세요.", value=os.path.join(st.session_state.default_save_dir, "ft_gemma_2_2b", "merged_model"))
+                        model_path = st.text_input("병합된 모델 또는 어댑터의 경로를 직접 입력하세요.", value=os.path.join(st.session_state.default_save_dir, "ft_gemma_2_2b", "merged_model"))
                 except Exception as e:
                     st.error(f"모델 검색 중 오류 발생: {e}")
-                    model_path = st.text_input("병합된 모델의 경로를 직접 입력하세요.", value=os.path.join(st.session_state.default_save_dir, "ft_gemma_2_2b", "merged_model"))
+                    model_path = st.text_input("병합된 모델 또는 어댑터의 경로를 직접 입력하세요.", value=os.path.join(st.session_state.default_save_dir, "ft_gemma_2_2b", "merged_model"))
             else:
                 st.error(f"The default directory does not exist. : {base_dir}")
-                model_path = st.text_input("병합된 모델의 경로를 직접 입력하세요.", value=os.path.join(st.session_state.default_save_dir, "ft_gemma_2_2b", "merged_model"))
+                model_path = st.text_input("병합된 모델 또는 어댑터의 경로를 직접 입력하세요.", value=os.path.join(st.session_state.default_save_dir, "ft_gemma_2_2b", "merged_model"))
 
         model_exists = False
 
         if model_path and os.path.exists(model_path): # 모델 폴더가 존재한다면
-            # 병합 모델 파일들 존재 확인
-            config_exists = os.path.exists(os.path.join(model_path, 'config.json'))
-            model_file_exists = (os.path.exists(os.path.join(model_path, 'pytorch_model.bin')) or os.path.exists(os.path.join(model_path, 'model.safetensors')))
+            # 파일들 존재 확인
+            config_exists = os.path.exists(os.path.join(model_path, 'config.json')) or os.path.exists(os.path.join(model_path, 'adapter_config.json'))
+            model_file_exists = (os.path.exists(os.path.join(model_path, 'pytorch_model.bin')) or os.path.exists(os.path.join(model_path, 'model.safetensors'))) or os.path.exists(os.path.join(model_path, 'adapter_model.safetensors')) or os.path.exists(os.path.join(model_path, 'adapter_model.bin'))
 
             if config_exists and model_file_exists: # 모델 config와 모델 파일이 존재한다면
                 model_exists = True
-                st.success("병합된 모델을 사용할 수 있습니다.")
+                st.success("모델을 사용할 수 있습니다.")
 
-                # 라벨 정보 표시 (상위 폴더에서 확인)
-                parent_dir = os.path.dirname(model_path)
-                label_file_path = os.path.join(parent_dir, 'label_mappings.pkl')
+                # 병합 모델인 경우 상위 폴더에서 라벨 찾기, 어댑터 모델은 자기 폴더에서 찾기
+                if os.path.basename(model_path) == "merged_model":
+                    label_file_path = os.path.join(os.path.dirname(model_path), 'label_mappings.pkl')
+                else:
+                    label_file_path = os.path.join(model_path, 'label_mappings.pkl')
 
                 if os.path.exists(label_file_path):
                     try:
                         import pickle
                         with open(label_file_path, 'rb') as f:
                             mappings = pickle.load(f)
-                            model_labels = mappings['labels_list']
+                            model_labels = mappings.get('labels_list', [])
 
                             with st.expander("**LABELS FOR THE TRAINED MODEL**", expanded=False):
                                 st.write(sorted(model_labels))
@@ -102,7 +111,7 @@ def show():
                 else:
                     st.warning("라벨 정보 파일을 찾을 수 없습니다.")
             else:
-                st.warning("병합된 모델 파일이 존재하지 않습니다.")
+                st.warning("모델 파일이 존재하지 않습니다.")
         else:
             st.warning("지정된 경로에 모델이 존재하지 않습니다.")
 
@@ -121,8 +130,8 @@ def show():
 
             inference = FineTuningInference(model_name, hf_token)
 
-            with st.spinner("LOADING MERGED MODEL ..."):
-                inference.load_model(model_path, is_merged_model=True)
+            with st.spinner("LOADING MODEL ..."):
+                inference.load_model(model_path, is_merged_model=("merged_model" in os.path.normpath(model_path).split(os.sep))) # 모델 저장 경로에 merged_model이 있는지 여부 체크
 
             with st.spinner("RUNNING INFERENCE ..."):
                 st.session_state.inference_results = inference.predict_patents(df, model_path, selected_cols=selected_cols, max_length=chunk_max_length, stride=chunk_stride)

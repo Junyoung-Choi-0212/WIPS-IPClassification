@@ -187,6 +187,8 @@ class FineTuningTrainer:
 
                 print(f"병합된 모델이 {merged_output_dir}에 저장되었습니다.")
             else:
-                # 기존 방식 (어댑터만 저장)
+                # 어댑터만 저장
                 self.trainer.model.save_pretrained(output_dir)
                 self.tokenizer.save_pretrained(output_dir)
+                
+                print(f"어댑터가 {output_dir}에 저장되었습니다.")
