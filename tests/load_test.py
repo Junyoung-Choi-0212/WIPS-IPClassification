@@ -19,7 +19,7 @@ bnb_config_params = {'load_in_4bit': True, 'bnb_4bit_quant_type': 'nf4', 'bnb_4b
 bnb_config = BitsAndBytesConfig(**bnb_config_params)
 
 # 테스트 데이터
-df = pd.read_excel("../data/test.xlsx")
+df = pd.read_excel("../data/cpc_c01_merge.xlsx")
 dataset = Dataset.from_pandas(df)
 
 label_list = df["사용자태그"].unique().tolist()

@@ -43,7 +43,7 @@ model = get_peft_model(model, peft_config)
 
 torch.cuda.empty_cache()
 
-df = pd.read_excel("../data/test.xlsx")
+df = pd.read_excel("../data/cpc_c01_merge.xlsx")
 dataset = Dataset.from_pandas(df)
 
 label_list = df["사용자태그"].unique().tolist()
